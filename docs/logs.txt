@@ -645,3 +645,6 @@ Actions Taken:
 * Verified `http://localhost:3000/dashboard` responds with HTTP 200.
 * Visually and programmatically verified the rendered dashboard contains 0 `.recharts-pie` elements and 7 `.recharts-bar` elements.
 * Confirmed dashboard contains no pie-chart imports or component references.
+
+Commit SHA confirmation for the "Removing dashboard pie charts" turn:
+0f4863c5d9f1af2f531da68b539085feb4cedd97
