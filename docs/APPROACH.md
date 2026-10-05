@@ -92,6 +92,11 @@ User input flows through page-specific form controls into validation logic in `a
 - **Key Challenges:** Preserving separate pages and local-first functionality while preventing text, cards, and controls from overlapping on small screens.
 - **Resolution:** Reworked the Overview page into a dashboard grid with a compact sidebar, top utility bar, right card rail, transaction feed, responsive breakpoints, and demo data for a complete first impression.
 
+### [2026-10-05 18:51 IST] Entry 5: Dataset Reset, Quick Entry, and Market Insights
+- **Focus:** Add reload reset behavior, a preinstalled dataset button, earn/spend quick amount entry, richer Overview charts, and investment market context.
+- **Key Challenges:** Resetting user-owned finance records without weakening ownership controls, keeping the quick entry flow simple, and showing NIFTY 50/Sensex charts while failing safely when live market data is unavailable.
+- **Resolution:** Added an authenticated demo reset API, reload-triggered reset in the app shell, a dashboard dataset button and earn/spend form, monthly savings and high expenditure charts, and a market API/page section for NIFTY 50 and Sensex.
+
 ---
 
 ## 6. Testing, Security Verification & Deployment Record

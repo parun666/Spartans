@@ -66,6 +66,18 @@ test.describe("FinTrack E2E", () => {
     // Dashboard totals
     await gotoReady(page, "/dashboard");
     await expect(page.locator("text=Income").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Preinstalled data" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Monthly savings" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "High expenditure trend" })).toBeVisible();
+    await page.fill("#quick-amount", "2500");
+    await page.fill("#quick-description", "E2E quick income");
+    await page.getByRole("button", { name: "Add income" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Earned amount added" })).toBeVisible();
+    await page.selectOption("#quick-type", "EXPENSE");
+    await page.fill("#quick-amount", "250");
+    await page.fill("#quick-description", "E2E quick expense");
+    await page.getByRole("button", { name: "Subtract spend" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Spent amount subtracted" })).toBeVisible();
 
     // Investment
     await gotoReady(page, "/investments");
@@ -73,7 +85,7 @@ test.describe("FinTrack E2E", () => {
     await page.fill("#i-name", "E2E Fund");
     await page.fill("#i-inv", "100000");
     await page.fill("#i-cur", "112000");
-    await page.click("button:has-text('Save')");
+    await page.getByRole("dialog", { name: "Add investment" }).getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.locator("text=E2E Fund")).toBeVisible();
     await expect(page.locator("text=12.0%")).toBeVisible();
 
@@ -112,6 +124,13 @@ test.describe("FinTrack E2E", () => {
     // Data persists
     await gotoReady(page, "/transactions");
     await expect(page.locator("text=E2E Salary")).toBeVisible();
+
+    // A full page reload restores the preinstalled dataset.
+    await page.reload();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("status").filter({ hasText: "Preinstalled dataset restored after reload" })).toBeVisible();
+    await gotoReady(page, "/transactions");
+    await expect(page.locator("text=E2E Salary")).toHaveCount(0);
   });
 
   test("mobile viewport renders bottom nav", async ({ browser }) => {

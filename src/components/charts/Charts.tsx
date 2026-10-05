@@ -9,6 +9,9 @@ export function IncomeExpenseBar({ data }: { data: { month: string; income: numb
 export function MonthlySpendLine({ data }: { data: { month: string; expense: number }[] }) {
   return <ResponsiveContainer width="100%" height={260}><LineChart data={data}><XAxis dataKey="month" /><YAxis /><Tooltip /><Line type="monotone" dataKey="expense" stroke="#0ea5e9" /></LineChart></ResponsiveContainer>;
 }
+export function MonthlySavingsLine({ data }: { data: { month: string; savings: number }[] }) {
+  return <ResponsiveContainer width="100%" height={260}><LineChart data={data}><XAxis dataKey="month" /><YAxis /><Tooltip /><Line type="monotone" dataKey="savings" stroke="#22c55e" name="Savings" /></LineChart></ResponsiveContainer>;
+}
 export function CategorySplitPie({ data }: { data: { name: string; value: number }[] }) {
   return <ResponsiveContainer width="100%" height={260}><PieChart><Pie data={data} dataKey="value" nameKey="name" outerRadius={90}>{data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer>;
 }

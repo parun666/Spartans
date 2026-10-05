@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/client";
+import { useToast } from "@/components/Toast";
 import {
   LayoutDashboard, ArrowLeftRight, PiggyBank, LineChart, Repeat, Target, BarChart3, Bot, Shield, Settings, ShieldCheck, LogOut
 } from "lucide-react";
@@ -23,9 +25,26 @@ const NAV = [
 export default function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const qc = useQueryClient();
+  const toast = useToast();
+  const reloadResetStarted = useRef(false);
   const { data } = useQuery({ queryKey: ["me"], queryFn: () => apiFetch<{ user: { role: string; name: string } | null }>("/api/auth/me") });
   const user = data?.user;
   const isAuthPage = pathname === "/login" || pathname === "/register";
+
+  useEffect(() => {
+    if (!user || isAuthPage || reloadResetStarted.current) return;
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type !== "reload") return;
+    reloadResetStarted.current = true;
+    apiFetch<{ ok: boolean }>("/api/demo/reset", { method: "POST" })
+      .then(() => {
+        void qc.invalidateQueries();
+        toast("Preinstalled dataset restored after reload");
+      })
+      .catch((error: unknown) => {
+        toast(error instanceof Error ? `Could not reset data: ${error.message}` : "Could not reset data.", "error");
+      });
+  }, [isAuthPage, qc, toast, user]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });

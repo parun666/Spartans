@@ -29,8 +29,9 @@ export async function GET(req: Request) {
     return json({
       income: income / 100, expense: expense / 100, balance: (income - expense) / 100,
       savingsRatePct: savingsRate(income, expense),
-      monthly: [...byMonth.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([month, v]) => ({ month, income: v.income / 100, expense: v.expense / 100 })),
+      monthly: [...byMonth.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([month, v]) => ({ month, income: v.income / 100, expense: v.expense / 100, savings: (v.income - v.expense) / 100 })),
       categorySplit: [...byCatExpense.entries()].map(([name, v]) => ({ name, value: v / 100 })),
+      highExpense: [...byCatExpense.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, v]) => ({ name, value: v / 100 })),
       budgetUse: budgetUse.map((b) => ({ name: b.name, limit: b.limit / 100, used: b.used / 100 })),
       investmentAllocation: alloc.map((a) => ({ name: a.name, value: a.value / 100 })),
       recent
