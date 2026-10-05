@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'"
+    />
+    <title>FinTrack - Transactions</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="transactions">
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="index.html" aria-label="FinTrack home">
+          <span class="brand-mark">Ft</span>
+        </a>
+        <nav class="nav-links">
+          <a href="index.html" title="Overview">O</a>
+          <a href="transactions.html" class="active" aria-current="page" title="Transactions">T</a>
+          <a href="budgets.html" title="Budgets">B</a>
+          <a href="goals.html" title="Goals">G</a>
+        </nav>
+        <div class="vault-status">
+          <span class="status-dot"></span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Ledger</p>
+            <h1>Transactions</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-button" id="seedButton" type="button" title="Load sample data" aria-label="Load sample data">
+              <span aria-hidden="true">+</span>
+            </button>
+            <button class="icon-button" id="exportButton" type="button" title="Export data" aria-label="Export data">
+              <span aria-hidden="true">D</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="panel transaction-panel" aria-labelledby="transactionHeading">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Income and expense log</p>
+              <h2 id="transactionHeading">Transaction Ledger</h2>
+            </div>
+            <select id="filterType" aria-label="Filter transactions">
+              <option value="all">All</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
+          <form class="entry-form" id="transactionForm" autocomplete="off">
+            <input type="hidden" id="editingId" />
+            <label>
+              <span>Description</span>
+              <input id="descriptionInput" name="description" maxlength="60" required placeholder="Salary, groceries, rent" />
+            </label>
+            <label>
+              <span>Amount</span>
+              <input id="amountInput" name="amount" type="number" min="1" step="1" required placeholder="2500" />
+            </label>
+            <label>
+              <span>Type</span>
+              <select id="typeInput" name="type" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="categoryInput" name="category" required></select>
+            </label>
+            <label>
+              <span>Date</span>
+              <input id="dateInput" name="date" type="date" required />
+            </label>
+            <button class="primary-button" type="submit" id="saveTransactionButton">Add</button>
+          </form>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactionTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="emptyTemplate">
+      <tr>
+        <td colspan="5" class="empty-state">No transactions yet.</td>
+      </tr>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>

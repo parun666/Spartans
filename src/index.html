@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'"
+    />
+    <title>FinTrack - Overview</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="overview">
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="index.html" aria-label="FinTrack home">
+          <span class="brand-mark">Ft</span>
+        </a>
+        <nav class="nav-links">
+          <a href="index.html" class="active" aria-current="page" title="Overview">O</a>
+          <a href="transactions.html" title="Transactions">T</a>
+          <a href="budgets.html" title="Budgets">B</a>
+          <a href="goals.html" title="Goals">G</a>
+        </nav>
+        <div class="vault-status">
+          <span class="status-dot"></span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <label class="search-box">
+            <span aria-hidden="true">S</span>
+            <input type="search" placeholder="Search" aria-label="Search FinTrack" />
+          </label>
+          <div class="command-key">Ctrl + Space</div>
+          <div class="topbar-actions">
+            <button class="icon-button" id="seedButton" type="button" title="Load sample data" aria-label="Load sample data">+</button>
+            <button class="icon-button" id="exportButton" type="button" title="Export data" aria-label="Export data">D</button>
+            <span class="theme-orb" aria-hidden="true"></span>
+            <div class="profile-chip" aria-label="Signed in user">
+              <span class="avatar">SR</span>
+              <span>
+                <strong>Spartans</strong>
+                <small>@fintrack_team</small>
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <section class="dashboard-grid">
+          <div class="dashboard-main">
+            <section class="panel balance-panel" aria-labelledby="balanceHeading">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Total Balance</p>
+                  <h1 id="balanceHeading"><span id="balanceTotal">Rs 0</span> <small id="savingsRate">0%</small></h1>
+                </div>
+                <div class="segmented-control" aria-label="Chart range">
+                  <button type="button">1 year</button>
+                  <button type="button" class="active">6 month</button>
+                  <button type="button">3 month</button>
+                  <button type="button">1 month</button>
+                </div>
+              </div>
+              <div class="chart balance-chart" id="cashflowChart" aria-label="Monthly cash flow chart"></div>
+              <div class="chart-axis" aria-hidden="true">
+                <span>Sep</span>
+                <span>Oct</span>
+                <span>Nov</span>
+                <span>Dec</span>
+                <span>Jan</span>
+                <span>Feb</span>
+              </div>
+              <div class="balance-footer">
+                <span>Annual rate <strong>Rs 84,000</strong></span>
+                <span><i class="legend-dot actual"></i>Actual balance</span>
+                <span><i class="legend-dot monthly"></i>Total monthly balance</span>
+              </div>
+            </section>
+
+            <section class="lower-grid">
+              <article class="panel promo-panel">
+                <div>
+                  <h2>Trusted by Thousands Join Us Today!</h2>
+                  <p>Secure, reliable, and trusted by customers worldwide</p>
+                </div>
+                <div class="member-stack" aria-label="Trusted members">
+                  <span>NP</span>
+                  <span>SV</span>
+                  <span>FT</span>
+                  <span>+</span>
+                </div>
+                <a class="wide-button" href="transactions.html">Request</a>
+              </article>
+
+              <article class="panel investment-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Investments</p>
+                    <h2>Rs 3,200.00 <small>+1.52%</small></h2>
+                  </div>
+                  <div class="compact-actions">
+                    <button type="button">Sort</button>
+                    <button type="button">Month</button>
+                  </div>
+                </div>
+                <div class="investment-bars" aria-label="Investment trend">
+                  <span style="--h: 38%"><b>Rs 200</b></span>
+                  <span style="--h: 55%"><b>Rs 300</b></span>
+                  <span style="--h: 68%"><b>Rs 400</b></span>
+                  <span style="--h: 68%"><b>Rs 400</b></span>
+                  <span class="active" style="--h: 90%"><b>Rs 500</b></span>
+                  <span style="--h: 66%"><b>Rs 400</b></span>
+                </div>
+                <div class="chart-axis" aria-hidden="true">
+                  <span>Sep</span>
+                  <span>Oct</span>
+                  <span>Nov</span>
+                  <span>Dec</span>
+                  <span>Jan</span>
+                  <span>Feb</span>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <aside class="right-rail" aria-label="Cards and recent transactions">
+            <section class="panel cards-panel" aria-labelledby="cardsHeading">
+              <div class="panel-header">
+                <h2 id="cardsHeading">My cards</h2>
+                <button class="soft-button" type="button">+ Add new</button>
+              </div>
+              <div class="card-stack" aria-hidden="true">
+                <div class="mini-card">VISA <span>Rs 6,150.00</span></div>
+                <div class="mini-card second">MC <span>Rs 3,140.00</span></div>
+                <div class="bank-card">
+                  <strong>VISA</strong>
+                  <span class="chip"></span>
+                  <small>Balance</small>
+                  <b>Rs 12,850.00</b>
+                  <em>+3.52%</em>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a href="transactions.html">Request</a>
+                <a href="transactions.html">Transfer</a>
+              </div>
+            </section>
+
+            <section class="panel recent-panel" aria-labelledby="recentHeading">
+              <div class="panel-header">
+                <h2 id="recentHeading">Recent Transactions</h2>
+                <a href="transactions.html">View All</a>
+              </div>
+              <div class="recent-list" id="recentList"></div>
+            </section>
+
+            <section class="panel vault-panel" aria-labelledby="dataHeading">
+              <div class="panel-header">
+                <h2 id="dataHeading">Data Vault</h2>
+              </div>
+              <label class="file-drop">
+                <input id="importInput" type="file" accept="application/json" />
+                <span>Import JSON backup</span>
+              </label>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

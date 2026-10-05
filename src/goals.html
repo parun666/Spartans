@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'self'"
+    />
+    <title>FinTrack - Goals</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="goals">
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="index.html" aria-label="FinTrack home">
+          <span class="brand-mark">Ft</span>
+        </a>
+        <nav class="nav-links">
+          <a href="index.html" title="Overview">O</a>
+          <a href="transactions.html" title="Transactions">T</a>
+          <a href="budgets.html" title="Budgets">B</a>
+          <a href="goals.html" class="active" aria-current="page" title="Goals">G</a>
+        </nav>
+        <div class="vault-status">
+          <span class="status-dot"></span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Targets</p>
+            <h1>Goals</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-button" id="seedButton" type="button" title="Load sample data" aria-label="Load sample data">
+              <span aria-hidden="true">+</span>
+            </button>
+            <button class="icon-button" id="exportButton" type="button" title="Export data" aria-label="Export data">
+              <span aria-hidden="true">D</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="panel wide-panel" aria-labelledby="goalHeading">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Savings targets</p>
+              <h2 id="goalHeading">Goal Tracker</h2>
+            </div>
+          </div>
+          <form class="goal-form" id="goalForm" autocomplete="off">
+            <input id="goalNameInput" maxlength="40" placeholder="Emergency fund" required />
+            <input id="goalTargetInput" type="number" min="100" step="100" placeholder="Target" required />
+            <input id="goalSavedInput" type="number" min="0" step="100" placeholder="Saved" required />
+            <button class="secondary-button" type="submit">Save Goal</button>
+          </form>
+          <div id="goalList" class="progress-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
