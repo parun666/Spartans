@@ -1,82 +1,107 @@
-# Build Secure 24 — Participant Starter Repository
+# FinTrack — Your money. Your insights. Your privacy.
 
-**Abhedya — VBIT Cybersecurity Forum, Vignana Bharathi Institute of Technology, Hyderabad**
+Build Secure 24 (Abhedya, VBIT) — Team Spartans 03A.
 
-Welcome to the official Build Secure 24 starter repository.
+A complete, secure, local-first personal finance tracker.
 
----
+## Stack (fixed)
 
-## 1. Challenge Overview
+- **Next.js 14** App Router + **TypeScript**
+- **Tailwind CSS** + shadcn-style UI components (`src/components/ui`)
+- **Prisma** + **SQLite** (file DB, zero setup; schema is Postgres-compatible — switch the datasource provider to `postgresql` to migrate)
+- **Zod** validation on every mutation
+- **Recharts** dashboards & reports
+- **Vitest** unit/API tests + **Playwright** E2E
+- **bcryptjs** password hashing
+- **jose** JWT session in HttpOnly SameSite=Lax cookie (never localStorage)
+- **TanStack Query** for refetch/invalidation
+- Money stored as **INTEGER PAISE**, formatted with `Intl` en-IN as ₹1,25,000.00
 
-- **Schedule**: October 5, 2026, 11:00 AM IST to October 6, 2026, 11:00 AM IST
-- **Duration**: Exactly 24 Hours
-- **Submission Deadline**: October 6, 2026, 11:00 AM IST (`2026-10-06T11:00:00+05:30`)
-- **Team Size**: Exactly 2 or 4 participants per team (teams of 1, 3, or >4 are not permitted)
-- **Core Requirement**: All project code must be created live during the 24-hour hackathon. Importing pre-built or third-party repositories is strictly prohibited.
+## Quick start (clean clone)
 
----
-
-## 2. Repository Structure
-
-```
-├── AGENTS.md                  ← AI agent behavioral contract & logging gate
-├── README.md                  ← This file
-├── PARTICIPANT_RULES.md       ← Competition rules
-│
-├── docs/                      ← Autonomous documentation layer
-│   ├── APPROACH.md            ← Problem breakdown & architecture approach
-│   └── logs.txt               ← Turn-by-turn prompt, file location & timeline log
-│
-├── metadata/                  ← Submission metadata
-│   ├── team.yaml              ← Team information (2 or 4 members)
-│   └── submission.yaml        ← Final submission details
-│
-├── src/                       ← Application source code directory
-└── deployment/                ← Deployment configuration directory
-    └── README.md              ← Deployment record
+```bash
+npm install
+cp .env.example .env
+npm run setup    # prisma migrate dev + seed
+npm run dev      # http://localhost:3000
 ```
 
----
+Seed accounts:
 
-## 3. Getting Started
+| Role | Email | Password |
+|---|---|---|
+| Demo user | demo@fintrack.dev | Demo@12345 |
+| Admin | admin@fintrack.dev | Admin@12345 |
 
-### Step 1: Team Registration & GitHub Repository Setup
-1. Create a new GitHub repository for your team's project.
-2. Fill in `metadata/team.yaml` with your assigned Team ID, team name, your newly created GitHub repository URL (`team.repository`), and all 2 or 4 member details.
+## Quality gates
 
-### Step 2: AI Agent Onboarding
-When you open this repository in an AI coding assistant (Cursor, Windsurf, Claude Code, Copilot, ChatGPT, etc.):
-- The agent will read `AGENTS.md`, greet your team, recite the competition ground rules, display the remaining time until **October 6, 2026, 11:00 AM IST**, and collect your `I agree` confirmation.
-- Once confirmed, the agent records your team details and GitHub repository URL, and configures your Git remote origin.
-- The agent will **automatically log every prompt, the full agent response, the Git commit SHA, exact file changes, and timeline** in `docs/logs.txt` as you build.
+```bash
+npm run typecheck && npm run lint && npm test
+npm run test:e2e   # Playwright (needs: npx playwright install chromium)
+```
 
-### Step 3: Build & Ship with Continuous Push
-- Author your application code inside `src/`.
-- After each prompt, changes are committed with the exact commit SHA recorded in `docs/logs.txt`, and can be pushed directly to your team's GitHub repository (`git push origin main`).
-- Document your technical approach in `docs/APPROACH.md`.
-- Deploy your application and record live details in `deployment/README.md`.
-- Update `metadata/submission.yaml` with your final commit SHA before the **October 6, 2026, 11:00 AM IST** deadline.
+## Features by route
 
----
+| Route | Purpose |
+|---|---|
+| `/login`, `/register` | Auth (login rate-limited 5/5min) |
+| `/dashboard` | Income, expense, balance, savings rate, charts, recent activity, ↻ Refresh |
+| `/transactions` | Add/edit/delete modal w/ confirm, search, filters, sort, pagination in URL, Clear Filters |
+| `/budgets` | Budget limits per category per month, derived usage, warnings at 80% and 100% |
+| `/investments` | P/L and return %, "Market data unavailable — showing user-entered valuation." |
+| `/sips` | SIP planner (projected FV, month-by-month schedule), saved SIPs |
+| `/goals` | Remaining, % complete, estimated completion |
+| `/reports` | Monthly/category/income/expense/budget/investment reports + CSV/JSON export |
+| `/ai` | Server-side AI tools only; rule-based fallback when no key/provider fails |
+| `/security` | Implemented controls list + your audit activity |
+| `/admin` | User/transaction counts, roles, enable/disable (counts only, no financial contents) |
+| `/settings` | Profile, change password, export my data, delete account (cascade + password confirm) |
 
-## 4. Multi-Device Team Collaboration
+## API overview
 
-All 4 team members can work simultaneously across separate laptops:
+- `POST /api/auth/register|login|logout|change-password`, `GET /api/auth/me`
+- `GET/PUT /api/profile`
+- `GET/POST /api/transactions`, `PUT/DELETE /api/transactions/[id]`
+- `GET/POST /api/categories`, `DELETE /api/categories/[id]`
+- `GET/POST /api/budgets`
+- `GET/POST /api/investments`, `PUT/DELETE /api/investments/[id]`
+- `GET/POST /api/sips`, `DELETE /api/sips/[id]`
+- `GET/POST /api/goals`, `PUT/DELETE /api/goals/[id]`
+- `GET /api/dashboard`, `GET /api/reports?type=…`, `GET /api/export?format=csv|json`
+- `GET/PUT/DELETE /api/ai/config`, `POST /api/ai/chat`
+- `GET /api/admin/overview`, `GET /api/admin/users`, `PATCH /api/admin/users/[id]`
+- `GET /api/activity`, `DELETE /api/account`
 
-1. **Clone**: Every teammate clones your team's GitHub repository to their device.
-2. **Syncing Progress**:
-   - When one teammate finishes a feature or prompt:
-     ```bash
-     git add src/ docs/
-     git commit -m "feat: implement feature description"
-     git push origin main
-     ```
-   - Other teammates pull the latest updates:
-     ```bash
-     git pull origin main
-     ```
-3. **Agent Continuity**: When a teammate opens the updated repo on their laptop, their AI assistant automatically reads `docs/APPROACH.md` and recent `docs/logs.txt` entries, immediately picking up where the team left off.
+## Security controls
 
----
+- bcrypt password hashing; JWT (HS256, 7d) in HttpOnly SameSite=Lax cookie
+- Server-side session records; logout deletes the session; disabling a user kills sessions
+- Login rate limiting; Zod validation; parameterised Prisma queries
+- `requireUser()`/`requireRole()` on every route + ownership filter (`userId`) on every query (BOLA-tested)
+- AI key AES-256-GCM encrypted, masked in UI, replaceable/deletable
+- Security headers (CSP, X-Frame-Options DENY, nosniff, Referrer-Policy)
+- Audit log of auth/mutation events without secrets or request bodies
+- Export contains only the current user's data — no password hashes, sessions, or AI keys
 
-*Build freely. Use AI freely. Secure what you build. Document what you claim. Prove what you implemented.*
+## What reaches the AI
+
+Only minimal aggregates from the current user: monthly income/expense totals, savings rate, top expense categories, budget status, investment totals, goal progress, and the 5 most recent transaction summaries (description, category, amount, date). No emails of other users, no password hashes, no sessions, no API keys, no raw DB access, no SQL/shell/env from the model.
+
+## Actual vs projected
+
+- **Actual:** all transactions, budgets, balances, goal progress, investment valuations as entered by the user.
+- **Projected (labelled "Estimated"/"Projected"):** SIP future values from the standard formula `FV = P·(((1+r)^n − 1)/r)·(1+r)`, r = annual/12/100, n = years×12 (r=0 → P·n), and goal estimated completion dates. SIP figures are kept visually separate from real balances.
+
+## Testing
+
+- `tests/finance.test.ts` — SIP (incl. ₹5,000 @12%/10y → ₹6,00,000 invested), investment return (+12%, loss, equal, invested=0, validation), savings rate with income=0, money formatting.
+- `tests/api.test.ts` — BOLA with USER_A/USER_B across transactions, budgets, investments, goals, export, AI context; RBAC on admin; login rate limit; validation.
+- `e2e/fintrack.spec.ts` — full journey register → … → persistence, plus mobile viewport.
+
+## Known limitations
+
+- SQLite is single-node; switch datasource to `postgresql` for production scale.
+- In-memory login rate limiter resets on server restart (single instance).
+- Recharts 2.x deprecation warning; upgrade to v3 after migration review.
+- AI provider is OpenAI-compatible only; fails closed to a rule-based summary.
+- Playwright E2E requires `npx playwright install chromium`.

@@ -1,0 +1,18 @@
+
+> fintrack@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 15.7s
+ ○ Compiling /login ...
+ ✓ Compiled /login in 19.1s (652 modules)
+ GET /login 200 in 20032ms
+ ○ Compiling /api/auth/register ...
+ ✓ Compiled /api/auth/register in 5.3s (431 modules)
+ POST /api/auth/register 400 in 6712ms
+ POST /api/auth/register 400 in 81ms
+ POST /api/auth/register 201 in 857ms

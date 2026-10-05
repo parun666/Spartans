@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// All money amounts are INTEGER PAISE. All records carry userId for ownership scoping.
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  role          String   @default("USER") // USER | ADMIN
+  enabled       Boolean  @default(true)
+  currency      String   @default("INR")
+  timezone      String   @default("Asia/Kolkata")
+  preferences   String   @default("{}") // JSON string
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions      Session[]
+  auditEvents   AuditEvent[]
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+  investments   Investment[]
+  sips          Sip[]
+  goals         Goal[]
+  aiConfig      AiConfig?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique // opaque id also embedded in the JWT
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // e.g. LOGIN_SUCCESS, TRANSACTION_CREATE
+  ip        String?
+  metadata  String   @default("{}") // JSON, no secrets/bodies
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  userId    String?  // null = default category
+  name      String
+  kind      String   // INCOME | EXPENSE | BOTH
+  color     String   @default("#64748b")
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets   Budget[]
+
+  @@index([userId])
+  @@unique([userId, name])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // INCOME | EXPENSE
+  amountPaise Int
+  currency    String   @default("INR")
+  categoryId  String
+  description String
+  notes       String   @default("")
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([categoryId])
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  userId      String
+  categoryId  String
+  limitPaise  Int
+  currency    String   @default("INR")
+  month       String   // YYYY-MM
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month])
+  @@index([userId])
+}
+
+model Investment {
+  id             String   @id @default(cuid())
+  userId         String
+  name           String
+  type           String   // EQUITY | MUTUAL_FUND | FD | CRYPTO | OTHER
+  investedPaise  Int
+  currentPaise   Int
+  currency       String   @default("INR")
+  purchasedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Sip {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  monthlyPaise Int
+  annualRate  Float    // percent, e.g. 12
+  years       Int
+  currency    String   @default("INR")
+  targetPaise Int      @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Goal {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  targetPaise  Int
+  savedPaise   Int      @default(0)
+  currency     String   @default("INR")
+  deadline     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AiConfig {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  provider    String   @default("openai")
+  model       String   @default("gpt-4o-mini")
+  keyCipher   String   // AES-256-GCM, base64(iv|tag|data)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

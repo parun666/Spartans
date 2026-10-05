@@ -104,3 +104,9 @@ User input flows through page-specific form controls into validation logic in `a
 - **Live Deployment Platform:** Not configured yet.
 - **Deployment URL:** Not recorded yet.
 - **Health Check Endpoint:** Not applicable for the current static prototype.
+
+### [2026-10-05 16:10 IST] Entry 5: Full Next.js Rebuild (FinTrack v2)
+- **Focus:** Replace static prototype with a complete secure Next.js 14 app per the fixed stack.
+- **Stack:** Next.js 14 App Router + TypeScript, Tailwind + shadcn-style UI, Prisma + SQLite (Postgres-compatible schema), Zod, Recharts, Vitest + Playwright, bcryptjs, jose JWT cookie sessions, TanStack Query.
+- **Money:** INTEGER PAISE everywhere; Intl en-IN formatting.
+- **Security:** requireUser/requireRole, per-row userId filters, login rate limit, rate-limited auth audit, AES-256-GCM AI keys, security headers, cascade account deletion, exports exclude secrets.
