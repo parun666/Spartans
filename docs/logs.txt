@@ -726,3 +726,6 @@ Actions Taken:
 * Ran typecheck and lint successfully; the focused security/API suite had passed with 20 tests for the concurrent display fixes.
 * Browser-verified dashboard budget labels, transaction category badge contrast, security activity badge contrast, no AI navigation link, and `/ai` returning 404.
 * Attempted `npm run test:e2e`: one mobile test passed; the long journey timed out waiting for registration redirect under the slow development server.
+
+Commit SHA confirmation for the "Improving budget, transaction, and security text visibility" turn:
+76bbaa650714f2002faa285a932c769bd7d72304
