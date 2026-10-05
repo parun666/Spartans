@@ -52,7 +52,6 @@ npm run test:e2e   # Playwright (needs: npx playwright install chromium)
 | `/sips` | SIP planner (projected FV, month-by-month schedule), saved SIPs |
 | `/goals` | Remaining, % complete, estimated completion |
 | `/reports` | Monthly/category/income/expense/budget/investment reports + CSV/JSON export |
-| `/ai` | Server-side AI tools only; rule-based fallback when no key/provider fails |
 | `/security` | Implemented controls list + your audit activity |
 | `/admin` | User/transaction counts, roles, enable/disable (counts only, no financial contents) |
 | `/settings` | Profile, change password, export my data, delete account (cascade + password confirm) |

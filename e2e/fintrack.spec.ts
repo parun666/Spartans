@@ -19,6 +19,7 @@ test.describe("FinTrack E2E", () => {
     await page.waitForURL("**/dashboard", { timeout: 15000 });
     await expect(page.getByText("Your money, in focus")).toBeVisible();
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "AI" })).toHaveCount(0);
 
     // Add income
     await gotoReady(page, "/transactions");
@@ -80,6 +81,14 @@ test.describe("FinTrack E2E", () => {
     await page.fill("#quick-description", "E2E quick expense");
     await page.getByRole("button", { name: "Subtract spend" }).click();
     await expect(page.getByRole("status").filter({ hasText: "Spent amount subtracted" })).toBeVisible();
+    const xssPayload = "<img src=x onerror=alert(1)>";
+    await page.selectOption("#quick-type", "INCOME");
+    await page.fill("#quick-amount", "1");
+    await page.fill("#quick-description", xssPayload);
+    await page.getByRole("button", { name: "Add income" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Earned amount added" })).toBeVisible();
+    await expect(page.locator("img[src='x']")).toHaveCount(0);
+    await expect(page.getByText(xssPayload, { exact: true })).toBeVisible();
 
     // Investment
     await gotoReady(page, "/investments");

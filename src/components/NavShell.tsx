@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/client";
 import { useToast } from "@/components/Toast";
 import {
-  LayoutDashboard, ArrowLeftRight, PiggyBank, LineChart, Repeat, Target, BarChart3, Bot, Shield, Settings, ShieldCheck, LogOut
+  LayoutDashboard, ArrowLeftRight, PiggyBank, LineChart, Repeat, Target, BarChart3, Shield, Settings, ShieldCheck, LogOut
 } from "lucide-react";
 
 const NAV = [
@@ -17,7 +17,6 @@ const NAV = [
   { href: "/sips", label: "SIP", icon: Repeat },
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/reports", label: "Reports", icon: BarChart3 },
-  { href: "/ai", label: "AI", icon: Bot },
   { href: "/security", label: "Security", icon: Shield },
   { href: "/settings", label: "Settings", icon: Settings }
 ];
