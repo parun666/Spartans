@@ -35,9 +35,12 @@ export default function SecurityPage() {
         {data && data.events.length === 0 && <p className="text-slate-400 mt-3">No activity recorded yet.</p>}
         <ul className="divide-y mt-2 text-sm">
           {data?.events.map((e) => (
-            <li key={e.id} className="py-2 flex justify-between">
-              <span><Badge>{e.action}</Badge> {e.ip ? <span className="text-slate-400">from {e.ip}</span> : null}</span>
-              <span className="text-slate-400">{new Date(e.createdAt).toLocaleString()}</span>
+            <li key={e.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone="amber">{e.action.replaceAll("_", " ")}</Badge>
+                {e.ip ? <span className="text-slate-400">from {e.ip}</span> : null}
+              </div>
+              <time className="text-xs text-slate-400" dateTime={e.createdAt}>{new Date(e.createdAt).toLocaleString()}</time>
             </li>
           ))}
         </ul>

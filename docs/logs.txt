@@ -648,3 +648,81 @@ Actions Taken:
 
 Commit SHA confirmation for the "Removing dashboard pie charts" turn:
 0f4863c5d9f1af2f531da68b539085feb4cedd97
+
+================================================================================
+[2026-10-05T21:38:38+05:30] SESSION START
+================================================================================
+Agent: Copilot
+Repo Root: C:\Users\PARUN\OneDrive\Desktop\BuildSecure-main
+Branch: main
+System Time: 2026-10-05T21:38:38+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+
+================================================================================
+[2026-10-05T21:38:38+05:30] Improving budget, transaction, and security text visibility
+================================================================================
+User Prompt (verbatim):
+### Budget use
+cmuv30miz0009d0oec932n9o5cmuv30mlk000nd0oe7axggfk6 in this change the x axis info and in transaction page the catogery text is not visible change it and in security your security activities it is not visible too fix it
+
+Agent Response:
+Updated the dashboard budget chart to use the budget category names instead of opaque category IDs on its category axis. Changed shared badges to use readable dark-theme colors and clearer pill styling, improving transaction category labels and security-event labels; security activity rows now wrap cleanly on narrow screens and use readable timestamps. Verification passed: typecheck, lint, 20 focused security/API tests, and live browser checks confirmed readable budget axis names, category badges, and security activity. The browser showed no category IDs among budget chart ticks.
+
+Agent Response Summary:
+Replaced budget category IDs with category display names and improved badge contrast across transaction and security pages. Made security activity rows easier to scan on narrow screens; verified the chart labels and both pages in the browser, with typecheck, lint, and focused API/security tests passing.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+* src/app/api/dashboard/route.ts (Modified)
+* src/app/security/page.tsx (Modified)
+* src/components/ui/card.tsx (Modified)
+* tests/api.test.ts (Modified)
+
+Actions Taken:
+* Linked budget chart rows to category records and returned the category display name instead of the category ID.
+* Reworked shared badge colors for dark surfaces and made the security event list responsive with readable event labels/timestamps.
+* Added API regression coverage proving dashboard budget labels are category names, not IDs.
+* Ran `npm run typecheck`, `npm run lint`, and `npm run security:test` (20 tests passed).
+* Verified the dashboard budget axis, transaction category chips, and Security activity display in the browser.
+
+================================================================================
+[2026-10-05T21:45:49+05:30] SESSION START
+================================================================================
+Agent: Copilot
+Repo Root: C:\Users\PARUN\OneDrive\Desktop\BuildSecure-main
+Branch: main
+System Time: 2026-10-05T21:45:49+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+
+================================================================================
+[2026-10-05T21:45:49+05:30] Removing the AI page
+================================================================================
+User Prompt (verbatim):
+remove the ai page
+
+Agent Response:
+Removed the AI page from the authenticated navigation and deleted its route, so `/ai` now returns 404. Updated the route table in the README and added an end-to-end assertion that the authenticated navigation no longer includes the AI link. The AI API endpoints were left unchanged; this request removed the page surface only. Typecheck and lint passed, and browser verification confirmed the route returns 404 and the navigation has no AI link. E2E was attempted: the mobile navigation test passed, while the long registration journey timed out waiting for redirect during slow Next.js development-server activity; this run did not confirm that journey.
+
+Agent Response Summary:
+Removed the AI UI route and navigation link while retaining the existing server-side AI API endpoints. Updated route documentation and added a navigation regression assertion; browser checks confirmed no AI link and a 404 at `/ai`.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+* README.md (Modified)
+* e2e/fintrack.spec.ts (Modified)
+* src/app/ai/page.tsx (Deleted)
+* src/components/NavShell.tsx (Modified)
+
+Actions Taken:
+* Removed the AI link and its icon import from the shared navigation.
+* Deleted the `/ai` page route and removed its route entry from the README.
+* Added an E2E assertion that the AI navigation link is absent.
+* Ran typecheck and lint successfully; the focused security/API suite had passed with 20 tests for the concurrent display fixes.
+* Browser-verified dashboard budget labels, transaction category badge contrast, security activity badge contrast, no AI navigation link, and `/ai` returning 404.
+* Attempted `npm run test:e2e`: one mobile test passed; the long journey timed out waiting for registration redirect under the slow development server.

@@ -20,11 +20,11 @@ export async function GET(req: Request) {
     const alloc = investments.map((i) => ({ name: i.name, value: i.currentPaise }));
     const recent = tx.sort((a, b) => +b.date - +a.date).slice(0, 8).map((t) => ({ id: t.id, type: t.type, amount: t.amountPaise / 100, category: t.category.name, description: t.description, date: t.date }));
     const monthStr = new Date().toISOString().slice(0, 7);
-    const monthBudgets = await prisma.budget.findMany({ where: { userId: user.id, month: monthStr } });
+    const monthBudgets = await prisma.budget.findMany({ where: { userId: user.id, month: monthStr }, include: { category: true } });
     const budgetUse = [];
     for (const b of monthBudgets) {
       const agg = await prisma.transaction.aggregate({ where: { userId: user.id, type: "EXPENSE", categoryId: b.categoryId }, _sum: { amountPaise: true } });
-      budgetUse.push({ name: b.categoryId, limit: b.limitPaise, used: agg._sum.amountPaise ?? 0 });
+      budgetUse.push({ name: b.category.name, limit: b.limitPaise, used: agg._sum.amountPaise ?? 0 });
     }
     return json({
       income: income / 100, expense: expense / 100, balance: (income - expense) / 100,

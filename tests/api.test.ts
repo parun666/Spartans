@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { execSync } from "child_process";
 
 // API-level BOLA / RBAC / rate-limit tests against real SQLite test DB.
-let txGET: any, txPUT: any, txDELETE: any, budgetGET: any, budgetPOST: any, invPUT: any, invDELETE: any, goalDELETE: any, exportGET: any, adminGET: any, loginPOST: any;
+let txGET: any, txPUT: any, txDELETE: any, budgetGET: any, dashboardGET: any, invPUT: any, invDELETE: any, goalDELETE: any, exportGET: any, adminGET: any, loginPOST: any;
 let aiCtx: any;
 let prisma: any, createSession: any, hashPassword: any;
 let tokenA: string, tokenB: string, idA: string, idB: string;
@@ -25,6 +25,7 @@ beforeAll(async () => {
   txPUT = (await import("@/app/api/transactions/[id]/route")).PUT;
   txDELETE = (await import("@/app/api/transactions/[id]/route")).DELETE;
   budgetGET = (await import("@/app/api/budgets/route")).GET;
+  dashboardGET = (await import("@/app/api/dashboard/route")).GET;
   invPUT = (await import("@/app/api/investments/[id]/route")).PUT;
   invDELETE = (await import("@/app/api/investments/[id]/route")).DELETE;
   goalDELETE = (await import("@/app/api/goals/[id]/route")).DELETE;
@@ -78,6 +79,14 @@ describe("BOLA: transactions", () => {
 });
 
 describe("BOLA: budgets / investments / goals / export / AI context", () => {
+  it("uses the budget category name for dashboard chart labels", async () => {
+    const res = await dashboardGET(req("/api/dashboard", tokenA));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.budgetUse).toContainEqual(expect.objectContaining({ name: "Groceries" }));
+    expect(body.budgetUse.some((budget: { name: string }) => budget.name === budgetCatIdA)).toBe(false);
+  });
+
   it("budget list for B is empty", async () => {
     const res = await budgetGET(req(`/api/budgets?month=${new Date().toISOString().slice(0, 7)}`, tokenB));
     expect((await res.json()).budgets).toHaveLength(0);
@@ -122,5 +131,9 @@ describe("RBAC & rate limiting", () => {
   it("validation rejects bad login payload", async () => {
     const res = await loginPOST(req("/api/auth/login", undefined, { method: "POST", body: JSON.stringify({ email: "not-an-email", password: "" }) }));
     expect(res.status).toBe(400);
+  });
+  it("does not disclose schema validation details", async () => {
+    const res = await loginPOST(req("/api/auth/login", undefined, { method: "POST", body: JSON.stringify({ email: "not-an-email", password: "" }) }));
+    expect(await res.json()).toEqual({ error: "Invalid input" });
   });
 });

@@ -10,6 +10,6 @@ export function Skeleton({ className }: { className?: string }) {
   return <div className={cn("animate-pulse rounded-md bg-slate-200", className)} />;
 }
 export function Badge({ children, tone = "slate" }: { children: React.ReactNode; tone?: "slate" | "green" | "red" | "amber" }) {
-  const tones = { slate: "bg-slate-100 text-slate-700", green: "bg-green-100 text-green-700", red: "bg-red-100 text-red-700", amber: "bg-amber-100 text-amber-700" };
-  return <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
+  const tones = { slate: "border-white/10 bg-white/10 text-slate-200", green: "border-green-400/20 bg-green-950/50 text-green-300", red: "border-red-400/20 bg-red-950/50 text-red-300", amber: "border-amber-400/20 bg-amber-950/50 text-amber-300" };
+  return <span className={cn("inline-flex items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
 }
