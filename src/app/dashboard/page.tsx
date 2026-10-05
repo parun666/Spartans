@@ -34,11 +34,6 @@ export default function DashboardPage() {
     if (!matchingCategories.some((c) => c.id === quick.categoryId)) setQuick((q) => ({ ...q, categoryId: matchingCategories[0].id }));
   }, [matchingCategories, quick.categoryId]);
 
-  const resetDemo = useMutation({
-    mutationFn: () => apiFetch<{ ok: boolean }>("/api/demo/reset", { method: "POST" }),
-    onSuccess: () => { toast("Preinstalled dataset loaded"); qc.invalidateQueries(); },
-    onError: (e) => toast((e as Error).message, "error")
-  });
   const addQuick = useMutation({
     mutationFn: () => apiFetch("/api/transactions", {
       method: "POST",
@@ -63,7 +58,6 @@ export default function DashboardPage() {
           <p className="text-sm text-slate-500">Preview monthly savings, high expenditure, and your latest money movement.</p>
         </div>
         <div className="flex flex-wrap gap-2 justify-end">
-          <Button onClick={() => resetDemo.mutate()} disabled={resetDemo.isPending}>Preinstalled data</Button>
           <Button variant="outline" onClick={() => { qc.invalidateQueries(); refetch(); }} aria-label="Refresh">Refresh</Button>
         </div>
       </div>

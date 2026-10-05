@@ -1,11 +1,18 @@
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/auth";
+import { requireUser, audit, rateLimit } from "@/lib/auth";
 import { json, errorResponse } from "@/lib/api";
 
 export async function GET(req: Request) {
   try {
     const user = await requireUser(req);
+    if (!rateLimit(`reports:${user.id}`, 30, 60_000)) {
+      await audit(user.id, "REPORT_RATE_LIMITED", req);
+      return json({ error: "Too many report requests. Try again later." }, { status: 429 });
+    }
     const type = new URL(req.url).searchParams.get("type") ?? "monthly";
+    if (!["monthly", "category", "income", "expense", "budget", "investment"].includes(type)) {
+      return json({ error: "Invalid report type" }, { status: 400 });
+    }
     const tx = await prisma.transaction.findMany({ where: { userId: user.id }, include: { category: true }, orderBy: { date: "asc" } });
     if (type === "category") {
       const map = new Map<string, number>();

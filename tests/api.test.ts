@@ -14,7 +14,6 @@ function req(url: string, token?: string, init: RequestInit = {}) {
 
 beforeAll(async () => {
   process.env.DATABASE_URL = "file:./tests/test.db";
-  process.env.JWT_SECRET = process.env.JWT_SECRET ?? "dev-only-change-me-please-0123456789abcdef";
   execSync("npx prisma migrate deploy", { env: { ...process.env, DATABASE_URL: "file:./tests/test.db" }, stdio: "ignore", cwd: process.cwd() });
   const dbMod = await import("@/lib/db");
   prisma = dbMod.prisma;

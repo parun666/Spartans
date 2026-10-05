@@ -20,6 +20,7 @@ test.describe("FinTrack E2E", () => {
     await expect(page.getByText("Your money, in focus")).toBeVisible();
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
     await expect(page.getByRole("link", { name: "AI" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Preinstalled data" })).toHaveCount(0);
 
     // Add income
     await gotoReady(page, "/transactions");
@@ -69,7 +70,6 @@ test.describe("FinTrack E2E", () => {
     // Dashboard totals
     await gotoReady(page, "/dashboard");
     await expect(page.locator("text=Income").first()).toBeVisible();
-    await expect(page.getByRole("button", { name: "Preinstalled data" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Monthly savings" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "High expenditure trend" })).toBeVisible();
     await page.fill("#quick-amount", "2500");
@@ -132,17 +132,18 @@ test.describe("FinTrack E2E", () => {
     await page.click("button:has-text('Sign in')");
     await page.waitForURL("**/dashboard");
     await expect(page.getByText("Your money, in focus")).toBeVisible();
-
-    // Data persists
-    await gotoReady(page, "/transactions");
-    await expect(page.locator("text=E2E Salary")).toBeVisible();
-
-    // A full page reload restores the preinstalled dataset.
+    // A full reload and navigation must not replace database records with demo data.
     await page.reload();
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("status").filter({ hasText: "Preinstalled dataset restored after reload" })).toBeVisible();
     await gotoReady(page, "/transactions");
-    await expect(page.locator("text=E2E Salary")).toHaveCount(0);
+    await expect(page.locator("text=E2E Salary")).toBeVisible();
+    await expect(page.getByText(xssPayload, { exact: true })).toBeVisible();
+    await gotoReady(page, "/goals");
+    await expect(page.locator("text=E2E Goal")).toBeVisible();
+    await gotoReady(page, "/investments");
+    await expect(page.locator("text=E2E Fund")).toBeVisible();
+    await gotoReady(page, "/transactions");
+    await expect(page.locator("text=E2E Salary")).toBeVisible();
   });
 
   test("mobile viewport renders bottom nav", async ({ browser }) => {

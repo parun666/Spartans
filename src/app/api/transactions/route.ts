@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { requireUser, audit, ApiError } from "@/lib/auth";
-import { transactionSchema } from "@/lib/validate";
+import { transactionListQuerySchema, transactionSchema } from "@/lib/validate";
 import { json, errorResponse, parseBody } from "@/lib/api";
 import { parseAmountToPaise } from "@/lib/money";
 
@@ -8,24 +8,20 @@ export async function GET(req: Request) {
   try {
     const user = await requireUser(req);
     const url = new URL(req.url);
-    const q = url.searchParams.get("q") ?? "";
-    const type = url.searchParams.get("type") ?? "";
-    const categoryId = url.searchParams.get("categoryId") ?? "";
-    const from = url.searchParams.get("from") ?? "";
-    const to = url.searchParams.get("to") ?? "";
-    const minAmount = Number(url.searchParams.get("minAmount") ?? "");
-    const maxAmount = Number(url.searchParams.get("maxAmount") ?? "");
-    const sort = url.searchParams.get("sort") ?? "date_desc";
-    const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
-    const pageSize = Math.min(100, Math.max(1, Number(url.searchParams.get("pageSize") ?? "10")));
+    const rawQuery = Object.fromEntries(url.searchParams.entries());
+    const parsedQuery = transactionListQuerySchema.safeParse(rawQuery);
+    if (!parsedQuery.success) throw new ApiError(400, "Invalid query");
+    const { q, type, categoryId, from, to, minAmount, maxAmount, sort, page, pageSize } = parsedQuery.data;
+    if (from && to && from > to) throw new ApiError(400, "Invalid date range");
 
     const where: Record<string, unknown> = { userId: user.id };
     if (type === "INCOME" || type === "EXPENSE") where.type = type;
     if (categoryId) where.categoryId = categoryId;
-    if (from || to) where.date = { ...(from ? { gte: new Date(from) } : {}), ...(to ? { lte: new Date(to + "T23:59:59") } : {}) };
+    if (from || to) where.date = { ...(from ? { gte: new Date(`${from}T00:00:00.000Z`) } : {}), ...(to ? { lte: new Date(`${to}T23:59:59.999Z`) } : {}) };
     const paiseFilter: Record<string, number> = {};
-    if (!Number.isNaN(minAmount) && url.searchParams.get("minAmount")) paiseFilter.gte = Math.round(minAmount * 100);
-    if (!Number.isNaN(maxAmount) && url.searchParams.get("maxAmount")) paiseFilter.lte = Math.round(maxAmount * 100);
+    if (minAmount !== undefined) paiseFilter.gte = Math.round(minAmount * 100);
+    if (maxAmount !== undefined) paiseFilter.lte = Math.round(maxAmount * 100);
+    if (minAmount !== undefined && maxAmount !== undefined && minAmount > maxAmount) throw new ApiError(400, "Invalid amount range");
     if (Object.keys(paiseFilter).length) where.amountPaise = paiseFilter;
     if (q) where.OR = [
       { description: { contains: q } },

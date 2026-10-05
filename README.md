@@ -26,12 +26,7 @@ npm run setup    # prisma migrate dev + seed
 npm run dev      # http://localhost:3000
 ```
 
-Seed accounts:
-
-| Role | Email | Password |
-|---|---|---|
-| Demo user | demo@fintrack.dev | Demo@12345 |
-| Admin | admin@fintrack.dev | Admin@12345 |
+Optional fictional seed accounts are created only outside production when `DEMO_USER_PASSWORD` and/or `DEMO_ADMIN_PASSWORD` are supplied in the environment before `npm run setup`. No demo accounts are created by default; never use these variables in production.
 
 ## Quality gates
 

@@ -27,19 +27,28 @@ async function main() {
     if (!exists) await prisma.category.create({ data: { ...c, userId: null } });
   }
 
-  const demo = await prisma.user.upsert({
-    where: { email: "demo@fintrack.dev" },
-    update: {},
-    create: { email: "demo@fintrack.dev", name: "Demo User", passwordHash: await bcrypt.hash("Demo@12345", 10), role: "USER" }
-  });
-  await prisma.user.upsert({
-    where: { email: "admin@fintrack.dev" },
-    update: {},
-    create: { email: "admin@fintrack.dev", name: "Admin User", passwordHash: await bcrypt.hash("Admin@12345", 10), role: "ADMIN" }
-  });
+  let demo: { id: string } | null = null;
+  if (process.env.NODE_ENV !== "production") {
+    const demoPassword = process.env.DEMO_USER_PASSWORD;
+    if (demoPassword) {
+      demo = await prisma.user.upsert({
+        where: { email: "demo@fintrack.dev" },
+        update: {},
+        create: { email: "demo@fintrack.dev", name: "Demo User", passwordHash: await bcrypt.hash(demoPassword, 10), role: "USER" }
+      });
+    }
+    const adminPassword = process.env.DEMO_ADMIN_PASSWORD;
+    if (adminPassword) {
+      await prisma.user.upsert({
+        where: { email: "admin@fintrack.dev" },
+        update: {},
+        create: { email: "admin@fintrack.dev", name: "Demo Admin", passwordHash: await bcrypt.hash(adminPassword, 10), role: "ADMIN" }
+      });
+    }
+  }
 
-  const txCount = await prisma.transaction.count({ where: { userId: demo.id } });
-  if (txCount === 0) {
+  const txCount = demo ? await prisma.transaction.count({ where: { userId: demo.id } }) : 0;
+  if (demo && txCount === 0) {
     const cats = await prisma.category.findMany({ where: { userId: null } });
     const byName = new Map(cats.map((c) => [c.name, c]));
     const now = new Date();

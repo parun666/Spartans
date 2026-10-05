@@ -14,9 +14,10 @@ export async function PUT(req: Request) {
   try {
     const user = await requireUser(req);
     const data = await parseBody(req, profileSchema);
-    const existing = await prisma.user.findFirst({ where: { email: data.email, NOT: { id: user.id } } });
+    const email = data.email.toLowerCase();
+    const existing = await prisma.user.findFirst({ where: { email, NOT: { id: user.id } } });
     if (existing) return json({ error: "Email in use" }, { status: 409 });
-    const updated = await prisma.user.update({ where: { id: user.id }, data: { name: data.name, email: data.email, currency: data.currency, timezone: data.timezone, preferences: JSON.stringify(data.preferences ?? {}) }, select: { id: true, name: true, email: true, currency: true, timezone: true } });
+    const updated = await prisma.user.update({ where: { id: user.id }, data: { name: data.name, email, currency: data.currency, timezone: data.timezone, preferences: JSON.stringify(data.preferences ?? {}) }, select: { id: true, name: true, email: true, currency: true, timezone: true } });
     await audit(user.id, "PROFILE_UPDATED", req);
     return json({ profile: updated });
   } catch (e) { return errorResponse(e); }
