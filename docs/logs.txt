@@ -609,3 +609,39 @@ Actions Taken:
 
 Commit SHA confirmation for the "Applying the reference gradient across FinTrack" turn:
 997c6847637cd2384c1721f775e19f824ed896f7
+
+================================================================================
+[2026-10-05T21:35:26+05:30] SESSION START
+================================================================================
+Agent: Copilot
+Repo Root: C:\Users\PARUN\OneDrive\Desktop\BuildSecure-main
+Branch: main
+System Time: 2026-10-05T21:35:26+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+
+================================================================================
+[2026-10-05T21:35:26+05:30] Removing dashboard pie charts
+================================================================================
+User Prompt (verbatim):
+remove the picharts from the dashboard first
+
+Agent Response:
+The dashboard source already used bar charts, but the open page was serving a stale Next.js build that still rendered pie charts. Rebuilt the app and restarted the local server. Verified the dashboard has zero Recharts pie chart elements and seven bar-chart elements; the reusable pie chart remains available on the Reports page only.
+
+Agent Response Summary:
+Rebuilt and restarted the local app so its dashboard matches the source, which replaces category/investment pie charts with bar charts. Verified the live dashboard has no pie chart elements and still has bar charts; pie-chart support remains available to other pages.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+* src/app/dashboard/page.tsx (Modified)
+* src/components/charts/Charts.tsx (Modified)
+
+Actions Taken:
+* Inspected dashboard source and confirmed dashboard imports/rendered only bar and line charts.
+* Stopped the stale local Next.js server by exact process IDs, rebuilt with `npm run build`, and restarted using `npm run start`.
+* Verified `http://localhost:3000/dashboard` responds with HTTP 200.
+* Visually and programmatically verified the rendered dashboard contains 0 `.recharts-pie` elements and 7 `.recharts-bar` elements.
+* Confirmed dashboard contains no pie-chart imports or component references.

@@ -5,7 +5,7 @@ import { apiFetch } from "@/lib/client";
 import { Card, CardTitle, Skeleton } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
-import { IncomeExpenseBar, CategorySplitPie, BudgetUseBar, AllocationPie, MonthlySpendLine, MonthlySavingsLine } from "@/components/charts/Charts";
+import { IncomeExpenseBar, CategorySpendBar, BudgetUseBar, MonthlySpendLine, MonthlySavingsLine } from "@/components/charts/Charts";
 import { formatINR } from "@/lib/money";
 import { useToast } from "@/components/Toast";
 
@@ -90,10 +90,10 @@ export default function DashboardPage() {
         <Card><CardTitle>Income vs Expense</CardTitle>{data.monthly.length ? <IncomeExpenseBar data={data.monthly} /> : <p className="text-slate-400">No data yet.</p>}</Card>
         <Card><CardTitle>Monthly savings</CardTitle>{data.monthly.length ? <MonthlySavingsLine data={data.monthly} /> : <p className="text-slate-400">No data yet.</p>}</Card>
         <Card><CardTitle>High expenditure trend</CardTitle>{data.monthly.length ? <MonthlySpendLine data={data.monthly} /> : <p className="text-slate-400">No data yet.</p>}</Card>
-        <Card><CardTitle>Highest expense categories</CardTitle>{data.highExpense.length ? <CategorySplitPie data={data.highExpense} /> : <p className="text-slate-400">No expenses yet.</p>}</Card>
-        <Card><CardTitle>Category split</CardTitle>{data.categorySplit.length ? <CategorySplitPie data={data.categorySplit} /> : <p className="text-slate-400">No data yet.</p>}</Card>
+        <Card><CardTitle>Highest expense categories</CardTitle>{data.highExpense.length ? <CategorySpendBar data={data.highExpense} /> : <p className="text-slate-400">No expenses yet.</p>}</Card>
+        <Card><CardTitle>Category breakdown</CardTitle>{data.categorySplit.length ? <CategorySpendBar data={data.categorySplit} /> : <p className="text-slate-400">No data yet.</p>}</Card>
         <Card><CardTitle>Budget use</CardTitle>{data.budgetUse.length ? <BudgetUseBar data={data.budgetUse} /> : <p className="text-slate-400">No budgets this month.</p>}</Card>
-        <Card><CardTitle>Investment allocation</CardTitle>{data.investmentAllocation.length ? <AllocationPie data={data.investmentAllocation} /> : <p className="text-slate-400">No investments.</p>}</Card>
+        <Card><CardTitle>Investment allocation</CardTitle>{data.investmentAllocation.length ? <CategorySpendBar data={data.investmentAllocation} /> : <p className="text-slate-400">No investments.</p>}</Card>
         <Card><CardTitle>Recent activity</CardTitle>
           {data.recent.length === 0 && <p className="text-slate-400">No transactions yet.</p>}
           <ul className="divide-y">
