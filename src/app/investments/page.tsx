@@ -79,7 +79,7 @@ export default function InvestmentsPage() {
                 {index.points.length > 0 && (
                   <ResponsiveContainer width="100%" height={190} className="mt-3">
                     <LineChart data={index.points}>
-                      <XAxis dataKey="date" hide /><YAxis domain={["auto", "auto"]} width={50} /><Tooltip /><Line type="monotone" dataKey="close" stroke="#2563eb" dot={false} name={index.name} />
+                      <XAxis dataKey="date" hide /><YAxis domain={["auto", "auto"]} width={50} /><Tooltip /><Line type="monotone" dataKey="close" stroke="#e98b42" strokeWidth={2} dot={false} name={index.name} />
                     </LineChart>
                   </ResponsiveContainer>
                 )}
@@ -99,7 +99,7 @@ export default function InvestmentsPage() {
           <p className="mt-3 text-sm">Invested: <b>{formatINR(sipPlan.investedPaise)}</b> | Projected value: <b className="text-green-600">{formatINR(sipPlan.futureValuePaise)}</b></p>
           <ResponsiveContainer width="100%" height={240} className="mt-3">
             <LineChart data={sipChart}>
-              <XAxis dataKey="month" /><YAxis /><Tooltip /><Legend /><Line dataKey="value" stroke="#22c55e" name="Projected value" /><Line dataKey="invested" stroke="#94a3b8" name="Invested" />
+              <XAxis dataKey="month" /><YAxis /><Tooltip /><Legend /><Line dataKey="value" stroke="#63d4a0" strokeWidth={2} name="Projected value" /><Line dataKey="invested" stroke="#a89179" name="Invested" />
             </LineChart>
           </ResponsiveContainer>
           <Button className="mt-3" onClick={() => saveSip.mutate()} disabled={saveSip.isPending}>Save SIP plan</Button>

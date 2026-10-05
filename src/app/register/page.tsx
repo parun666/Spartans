@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { apiFetch } from "@/lib/client";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const qc = useQueryClient();
   const toast = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,6 +23,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await apiFetch("/api/auth/register", { method: "POST", body: JSON.stringify({ name, email, password }) });
+      await qc.invalidateQueries({ queryKey: ["me"] });
       toast("Account created");
       router.push("/dashboard");
       router.refresh();

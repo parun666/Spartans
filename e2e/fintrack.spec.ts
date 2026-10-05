@@ -17,6 +17,8 @@ test.describe("FinTrack E2E", () => {
     await page.fill("#password", "Passw0rd123");
     await page.click("button:has-text('Register')");
     await page.waitForURL("**/dashboard", { timeout: 15000 });
+    await expect(page.getByText("Your money, in focus")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
 
     // Add income
     await gotoReady(page, "/transactions");
@@ -120,6 +122,7 @@ test.describe("FinTrack E2E", () => {
     await page.fill("#password", "Passw0rd123");
     await page.click("button:has-text('Sign in')");
     await page.waitForURL("**/dashboard");
+    await expect(page.getByText("Your money, in focus")).toBeVisible();
 
     // Data persists
     await gotoReady(page, "/transactions");

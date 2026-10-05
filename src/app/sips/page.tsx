@@ -45,7 +45,7 @@ export default function SipsPage() {
         <p className="mt-3 text-sm">Invested: <b>{formatINR(plan.investedPaise)}</b> · Projected future value: <b className="text-green-600">{formatINR(plan.futureValuePaise)}</b></p>
         <ResponsiveContainer width="100%" height={240} className="mt-3">
           <LineChart data={plan.schedule.filter((_, i) => i % 6 === 0 || i === plan.schedule.length - 1).map((s) => ({ month: s.month, value: s.valuePaise / 100, invested: s.investedPaise / 100 }))}>
-            <XAxis dataKey="month" /><YAxis /><Tooltip /><Line dataKey="value" stroke="#22c55e" name="Projected value" /><Line dataKey="invested" stroke="#94a3b8" name="Invested" />
+            <XAxis dataKey="month" /><YAxis /><Tooltip /><Line dataKey="value" stroke="#63d4a0" strokeWidth={2} name="Projected value" /><Line dataKey="invested" stroke="#a89179" name="Invested" />
           </LineChart>
         </ResponsiveContainer>
         <Button className="mt-3" onClick={() => save.mutate()} disabled={save.isPending}>Save SIP</Button>

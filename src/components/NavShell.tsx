@@ -55,33 +55,50 @@ export default function NavShell({ children }: { children: React.ReactNode }) {
   if (isAuthPage || !user) return <main className="min-h-screen bg-slate-50">{children}</main>;
 
   return (
-    <div className="min-h-screen bg-slate-50 md:flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-slate-900 text-slate-200">
-        <div className="p-4 text-lg font-bold text-white">FinTrack</div>
-        <nav className="flex-1 space-y-1 px-2">
+    <div className="app-shell min-h-screen md:flex">
+      <aside className="app-sidebar hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0">
+        <Link href="/dashboard" className="flex items-center gap-3 px-5 py-6 text-lg font-semibold tracking-wide text-white">
+          <span className="brand-mark" aria-hidden="true">✳</span>
+          <span>FinTrack</span>
+        </Link>
+        <p className="px-5 pb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Workspace</p>
+        <nav className="flex-1 space-y-1 px-3">
           {NAV.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${pathname.startsWith(href) ? "bg-slate-700 text-white" : "hover:bg-slate-800"}`}>
+            <Link key={href} href={href} data-active={pathname.startsWith(href)} className="app-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm">
               <Icon size={16} /> {label}
             </Link>
           ))}
           {user.role === "ADMIN" && (
-            <Link href="/admin" className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${pathname.startsWith("/admin") ? "bg-slate-700 text-white" : "hover:bg-slate-800"}`}>
+            <Link href="/admin" data-active={pathname.startsWith("/admin")} className="app-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm">
               <ShieldCheck size={16} /> Admin
             </Link>
           )}
         </nav>
-        <button onClick={logout} className="m-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-slate-800"><LogOut size={16} /> Logout</button>
+        <div className="m-3 rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+          <p className="truncate text-sm font-medium text-white">{user.name}</p>
+          <p className="mt-1 text-xs text-slate-400">Personal account</p>
+          <button onClick={logout} className="mt-3 flex items-center gap-2 text-xs text-slate-400 transition hover:text-white"><LogOut size={14} /> Logout</button>
+        </div>
       </aside>
 
-      {/* Tablet compact icon nav */}
       <nav className="hidden sm:flex md:hidden fixed top-0 inset-x-0 bg-slate-900 text-slate-200 justify-around p-2 z-30">
         {NAV.slice(0, 8).map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href} title={label} aria-label={label} className={`p-2 rounded ${pathname.startsWith(href) ? "bg-slate-700" : ""}`}><Icon size={18} /></Link>
+          <Link key={href} href={href} title={label} aria-label={label} data-active={pathname.startsWith(href)} className="app-nav-link rounded-xl p-2"><Icon size={18} /></Link>
         ))}
       </nav>
 
-      <main className="flex-1 md:ml-56 p-4 pb-24 md:pb-4 pt-16 sm:pt-16 md:pt-4 max-w-6xl w-full">{children}</main>
+      <main className="app-main flex-1 md:ml-60 p-4 pb-24 md:px-7 md:pb-7 pt-16 sm:pt-16 md:pt-6 w-full">
+        <header className="app-topbar mb-6 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 md:px-5">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300/80">Your money, in focus</p>
+            <p className="mt-0.5 text-sm text-slate-400">Welcome back, <span className="font-medium text-white">{user.name}</span></p>
+          </div>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-200/20 bg-gradient-to-br from-emerald-300/30 to-emerald-700/30 text-sm font-semibold text-emerald-100" aria-label={`${user.name} profile`}>
+            {user.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+          </div>
+        </header>
+        {children}
+      </main>
 
       {/* Mobile bottom nav */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 bg-slate-900 text-slate-300 flex justify-around p-2 z-30">

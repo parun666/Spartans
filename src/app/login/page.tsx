@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { apiFetch } from "@/lib/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const qc = useQueryClient();
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +22,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await apiFetch("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      await qc.invalidateQueries({ queryKey: ["me"] });
       toast("Logged in successfully");
       router.push("/dashboard");
       router.refresh();
