@@ -606,3 +606,6 @@ Actions Taken:
 * Implemented the shared espresso gradient and aligned navigation, cards, form controls, toasts, dialogs, and charts with the new palette.
 * Ensured auth transitions refresh the shared user query and added E2E assertions for the branded authenticated shell.
 * Ran typecheck, lint, 23 unit/API tests, production build, 2 E2E tests, and browser visual verification.
+
+Commit SHA confirmation for the "Applying the reference gradient across FinTrack" turn:
+997c6847637cd2384c1721f775e19f824ed896f7
