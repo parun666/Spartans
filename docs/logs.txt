@@ -727,5 +727,8 @@ Actions Taken:
 * Browser-verified dashboard budget labels, transaction category badge contrast, security activity badge contrast, no AI navigation link, and `/ai` returning 404.
 * Attempted `npm run test:e2e`: one mobile test passed; the long journey timed out waiting for registration redirect under the slow development server.
 
+Commit SHA confirmation for the "Removing the AI page" turn:
+72e2b9bfe5104328c2ca12ffc2b6aaa765b85f50
+
 Commit SHA confirmation for the "Improving budget, transaction, and security text visibility" turn:
 76bbaa650714f2002faa285a932c769bd7d72304
