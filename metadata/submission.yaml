@@ -6,6 +6,6 @@ version: "1.0"
 submission:
   team_id: "03A"
   repository: "https://github.com/parun666/Spartans"
-  commit_sha: ""
+  commit_sha: "589d924"
   deployment_url: ""
   submitted_at: ""

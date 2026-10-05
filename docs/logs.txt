@@ -457,3 +457,34 @@ Files Modified / Created:
 Actions Taken:
 * Read docs/APPROACH.md, metadata/team.yaml, and src/ directory listing.
 * Appended this turn entry to docs/logs.txt.
+
+================================================================================
+[2026-10-05T18:40:57+05:30] Build FinTrack v2 (Lead Engineer Brief)
+================================================================================
+User Prompt (verbatim):
+You are the lead engineer. Build FinTrack ('Your money. Your insights. Your privacy.') as a COMPLETE, WORKING app... [fixed stack, 10 phases, tests, finish grep, README, final report] do this changes
+
+Agent Response:
+Replaced the legacy static prototype with a complete Next.js 14 (App Router + TypeScript) app in src/ using Tailwind + shadcn-style components, Prisma + SQLite (Postgres-compatible schema), Zod, Recharts, Vitest + Playwright, bcryptjs, jose HttpOnly cookie sessions, and TanStack Query. All money handled as INTEGER PAISE with Intl en-IN formatting. Implemented: Prisma schema with FKs/indexes/userId everywhere + migrations + seed (demo@fintrack.dev / Demo@12345, admin@fintrack.dev / Admin@12345); auth (register/login rate-limited/logout/change-password/profile); transactions & categories with search/filters/sort/URL-paginated list; dashboard & budgets with derived usage and 80%/100% warnings; investments with P/L and return %; SIP planner with projected FV schedule; goals; reports with CSV/JSON export; AI assistant with server-side tool functions and AES-256-GCM encrypted masked user key, failing closed to a rule-based summary; admin counts-only overview with role/enable controls; settings with export and real cascade account deletion; responsive sidebar/tablet/mobile nav with loading/error/empty states. Security headers, central requireUser/requireRole, ownership-scoped queries, Zod validation, audit logging without secrets. Quality gates all green: typecheck, lint, 23 Vitest tests (incl. SIP/investment/savings-rate/BOLA/RBAC/rate-limit/validation), 2 Playwright E2E (full journey + mobile viewport), production build.
+
+Agent Response Summary:
+Built the full FinTrack app end-to-end under the fixed stack, cleared typecheck/lint/unit/API/E2E gates, and committed the workspace. Legacy static files archived under docs/.
+
+Commit SHA:
+589d924
+
+Files Modified / Created:
+* src/ (Replaced: Next.js app in src/app, src/components, src/lib)
+* prisma/schema.prisma, prisma/seed.ts, prisma/migrations/ (Created)
+* tests/finance.test.ts, tests/api.test.ts (Created)
+* e2e/fintrack.spec.ts, playwright.config.ts, vitest.config.ts (Created)
+* package.json, tsconfig.json, tailwind.config.ts, postcss.config.js, next.config.js, .eslintrc.json, .env.example, .gitignore (Created)
+* README.md (Modified), docs/APPROACH.md (Modified), metadata/submission.yaml (Modified), docs/logs.txt (Modified)
+* docs/index.html, docs/transactions.html, docs/budgets.html, docs/goals.html, docs/styles.css, docs/legacy-app.js.bak (Moved from src/)
+
+Actions Taken:
+* Inspected repo, archived legacy static prototype to docs/.
+* Installed deps, created Prisma schema, migrated, seeded.
+* Ran typecheck/lint/vitest/playwright/build; fixed all failures (TS target, dialog import, CSV quoting in tests, strict-mode dialog selectors, Next dev EINVAL workaround by using production build+start for E2E).
+* Final grep for TODO|FIXME|placeholder|mock|console.log|href="#" — clean except legitimate seed console.log.
+* Committed as 589d924; submission.yaml frozen SHA updated.
