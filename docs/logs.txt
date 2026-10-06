@@ -1143,3 +1143,26 @@ Files Modified / Created:
 Actions Taken:
 * Navigated to the project's environment-variable settings route; the page did not expose the add-variable form in this browser session.
 * Recorded safe configuration guidance without viewing, generating, or transmitting credentials.
+
+Commit SHA confirmation for "Checking Vercel deployment readiness":
+6acba185c74696135fda6788f999534580e9b970
+
+Commit note:
+This commit also captured changes that were already staged before this turn. They were not made for the Vercel deployment request. I did not push the commit because the Vercel Production environment still has no required project variables and pushing would trigger a predictably failing deployment.
+Previously staged files included:
+* .gitignore (Modified)
+* .gitleaks.toml (Modified)
+* README.md (Modified)
+* docs/APPROACH.md (Modified)
+* docs/security/JURY_DEFENSE.md (Created)
+* docs/security/JURY_DEMO.md (Created)
+* docs/security/SBOM.md (Modified)
+* docs/security/SECURITY_ARCHITECTURE.md (Modified)
+* docs/security/SECURITY_RUNBOOK.md (Modified)
+* docs/security/SECURITY_SCORECARD.md (Created)
+* docs/security/SECURITY_TESTING.md (Created)
+* docs/security/THREAT_MODEL.md (Created)
+* docs/security/VULNERABILITY_MANAGEMENT.md (Created)
+* e2e/fintrack.spec.ts (Modified)
+* playwright.config.ts (Modified)
+* scripts/security/run.mjs (Modified)
