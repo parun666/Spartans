@@ -105,6 +105,11 @@ Browser requests flow through Next.js route handlers, which validate input and s
 - **Key Challenges:** Re-theming reusable navigation, forms, charts, cards, and authentication pages without changing their behavior or reducing readability.
 - **Resolution:** Added a shared espresso gradient canvas, translucent warm panels, amber primary actions, mint-green positive accents, and responsive branded navigation; updated common cards, controls, and chart colors so all pages inherit the same visual system.
 
+### [2026-10-06 13:20 IST] Entry 7: Reverse Proxy Support & Build Cache Healing
+- **Focus:** Resolve runtime page loading failures and proxy origin rejection across cloud deployments.
+- **Key Challenges:** Webpack chunk desynchronization causing MODULE_NOT_FOUND 500 errors on routes, and strict CSRF origin verification blocking requests behind reverse proxies like Netlify.
+- **Resolution:** Purged stale `.next` build caches and rebuilt cleanly; updated `src/middleware.ts` to inspect `x-forwarded-host` alongside `host` for accurate same-origin verification behind edge proxies; added one-click demo login helpers to `src/app/login/page.tsx` for immediate evaluation.
+
 ---
 
 ## 6. Testing, Security Verification & Deployment Record

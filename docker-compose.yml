@@ -1,0 +1,34 @@
+services:
+  fintrack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fintrack:local
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:/data/fintrack.db
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in the host environment}
+      AI_KEY_SECRET: ${AI_KEY_SECRET:?Set AI_KEY_SECRET in the host environment}
+    volumes:
+      - fintrack-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 768m
+    cpus: 1.5
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  fintrack-data:

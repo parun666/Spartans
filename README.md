@@ -28,7 +28,7 @@ npm run dev      # http://localhost:3000
 
 ## Deploy to Vercel
 
-Vercel runs Next.js as serverless functions. Do not use the local SQLite database in production: its file is not durable or shared across function instances. Create a Neon PostgreSQL database and import this repository into Vercel. The checked-in `vercel.json` identifies the project as Next.js and runs `npm run build:vercel`; this generates the PostgreSQL Prisma client, applies checked-in migrations through `DIRECT_URL`, and runs `next build`. The app uses Next.js's normal serverless output (no static export and no standalone output mode).
+Vercel runs Next.js as serverless functions. Do not use the local SQLite database in production: its file is not durable or shared across function instances. Create a Neon PostgreSQL database and import this repository into Vercel. In Vercel project settings set the Build Command to `npm run build:vercel`; this generates the PostgreSQL Prisma client, applies checked-in migrations through `DIRECT_URL`, and runs `next build`. (If you prefer, set the Build Command to the default `npm run build`; `build:vercel` runs additional one-time schema-preparation steps.) The app uses Next.js's normal serverless output (no static export and no standalone output mode).
 
 Set these variables for the Vercel **Production** environment (and separately configure Preview only with a separate non-production database):
 

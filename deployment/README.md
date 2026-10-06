@@ -5,7 +5,7 @@ FinTrack uses SQLite for local development and a PostgreSQL schema for Vercel. V
 ## One-time setup
 
 1. Create a Neon PostgreSQL project and database.
-2. Import this GitHub repository into Vercel as a Next.js project. The checked-in `vercel.json` selects `npm run build:vercel`.
+2. Import this GitHub repository into Vercel as a Next.js project. In the Vercel project settings set the Build Command to `npm run build:vercel` (see notes below).
 3. In Vercel project settings, configure these Production environment variables (and Preview only if using a separate preview database):
 
    | Variable | Value |

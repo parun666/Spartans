@@ -29,6 +29,9 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "overrides": {
     "postcss": "8.5.29"
   },

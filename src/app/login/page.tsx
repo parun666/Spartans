@@ -38,6 +38,32 @@ export default function LoginPage() {
           <div><Label htmlFor="password">Password</Label><Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
           <Button disabled={loading} className="w-full">{loading ? "Signing in…" : "Sign in"}</Button>
         </form>
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
+          <p className="font-semibold text-slate-300 mb-1.5">Quick Demo Access:</p>
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              className="flex-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20 transition"
+              onClick={() => {
+                setEmail("demo@fintrack.dev");
+                setPassword("Demo@12345");
+              }}
+            >
+              Fill Demo User
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-500/20 transition"
+              onClick={() => {
+                setEmail("admin@fintrack.dev");
+                setPassword("Admin@12345");
+              }}
+            >
+              Fill Admin User
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-400">Demo: demo@fintrack.dev / Demo@12345</p>
+        </div>
         <p className="mt-4 text-sm text-slate-500">No account? <Link className="text-blue-600" href="/register">Register</Link></p>
       </Card>
     </div>

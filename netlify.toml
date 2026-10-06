@@ -1,0 +1,14 @@
+[build]
+  command = "npm run build:vercel"
+  # For Next.js runtime do not set `publish` (leave blank) so Netlify's Next plugin handles it
+
+[context.production.environment]
+  # Recommend setting these environment variables in the Netlify UI (do NOT put real secrets here)
+  # DATABASE_URL = "postgresql://<user>:<pass>@<host>:5432/<db>?schema=public"
+  # DIRECT_URL = "postgresql://<user>:<pass>@<host>:5432/<db>"
+  # JWT_SECRET = "<32+ chars>"
+  # AI_KEY_SECRET = "<32+ chars>"
+  # NEXT_PUBLIC_APP_URL = "https://your-netlify-site.netlify.app"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

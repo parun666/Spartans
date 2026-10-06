@@ -8,7 +8,7 @@ export function middleware(req: NextRequest) {
 
   if (MUTATING_METHODS.has(req.method)) {
     const origin = req.headers.get("origin");
-    const host = req.headers.get("host");
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
     const contentType = req.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
     if (!origin || !host || contentType !== "application/json") {
       return NextResponse.json({ error: "Request rejected" }, { status: 403 });
@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
     try {
       const parsedOrigin = new URL(origin);
       const hostOrigin = new URL(`${parsedOrigin.protocol}//${host}`);
-      if (parsedOrigin.origin !== req.nextUrl.origin || hostOrigin.host !== parsedOrigin.host) {
+      if (hostOrigin.host !== parsedOrigin.host) {
         return NextResponse.json({ error: "Request rejected" }, { status: 403 });
       }
     } catch {

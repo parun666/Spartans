@@ -1,0 +1,31 @@
+env:
+  contexts:
+    - name: FinTrack QA
+      urls:
+        - http://127.0.0.1:3000
+      includePaths:
+        - http://127.0.0.1:3000/.*
+      excludePaths:
+        - http://127.0.0.1:3000/api/markets.*
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+jobs:
+  - type: spider
+    parameters:
+      context: FinTrack QA
+      maxDuration: 2
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 2
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: security-reports
+      reportFile: zap-report.html
+    risks:
+      - high
+      - medium
+      - low
+      - informational
