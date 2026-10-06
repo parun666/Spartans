@@ -93,6 +93,18 @@ describe("security middleware", () => {
       vi.unstubAllEnvs();
     }
   });
+
+  it("omits CSP in development so Next.js hot reload can execute", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    try {
+      const configured = await nextConfig.headers?.();
+      const headers = configured?.[0]?.headers ?? [];
+      expect(headers.some((header: { key: string }) => header.key === "Content-Security-Policy")).toBe(false);
+      expect(headers.some((header: { key: string }) => header.key === "X-Content-Type-Options")).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });
 
 describe("bounded JSON input parsing", () => {
