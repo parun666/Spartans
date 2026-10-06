@@ -1004,6 +1004,34 @@ Actions Taken:
 * Committed deployment configuration as 2540c6c0ddbbb99665e687d36480c932d9c0086e; did not push or attempt a Vercel deploy because project linkage and environment configuration are unavailable.
 
 ================================================================================
+[2026-10-06T07:29:41+05:30] Publishing Vercel deployment configuration
+================================================================================
+User Prompt (verbatim):
+Vercel project and environment variables are ready
+
+Agent Response:
+Updated the Vercel build pipeline to generate the PostgreSQL Prisma client, apply pending Neon migrations using the direct connection URL, and then run the Next.js production build. The schema/migration validation, TypeScript check, API tests, JSON parsing, and schema-generator syntax/lint checks have passed. I am publishing the committed deployment configuration to `origin/main` so the linked Vercel Git integration can start a deployment. The local Windows build had previously hit an EPERM while regenerating Prisma's DLL under active dev-server processes, so the clean Vercel build is the definitive check for this deployment. I will report deployment as successful only after a real Vercel deployment is visible and ready.
+
+Agent Response Summary:
+The user confirmed the Vercel project and environment variables are configured. Added database migration execution to the Vercel build path and prepared to push the deployment commits to the connected GitHub branch to trigger the deployment.
+
+Commit SHA:
+9930fe7ca23fdd36177bbe60e3403038036d26af
+
+Files Modified / Created:
+* package.json (Modified)
+* deployment/README.md (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Updated the Vercel build script to generate the Postgres Prisma client, deploy pending migrations, then build Next.js.
+* Updated deployment instructions to reflect automated Vercel-build migrations.
+* Ran `npm run typecheck` successfully.
+* Revalidated Vercel/package JSON and ran Node syntax check plus targeted ESLint on the schema generator.
+* Confirmed the Neon schema validates, its migration matches, and 27 API tests pass on the local SQLite test setup.
+* Prepared to push committed changes to `origin/main`; deployment has not yet been verified.
+
+================================================================================
 [2026-10-06T07:22:31+05:30] Diagnosing Vercel deployment blockers
 ================================================================================
 User Prompt (verbatim):
