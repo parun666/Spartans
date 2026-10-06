@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build:vercel"
+  command = "npm run build:netlify"
   # For Next.js runtime do not set `publish` (leave blank) so Netlify's Next plugin handles it
 
 [context.production.environment]
