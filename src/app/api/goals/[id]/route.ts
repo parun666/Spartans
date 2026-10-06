@@ -4,7 +4,8 @@ import { goalSchema } from "@/lib/validate";
 import { json, errorResponse, parseBody } from "@/lib/api";
 import { parseAmountToPaise } from "@/lib/money";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const params = await ctx.params;
   try {
     const user = await requireUser(req);
     const data = await parseBody(req, goalSchema);
@@ -17,7 +18,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     return json({ ok: true });
   } catch (e) { return errorResponse(e); }
 }
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const params = await ctx.params;
   try {
     const user = await requireUser(req);
     const res = await prisma.goal.deleteMany({ where: { id: params.id, userId: user.id } });

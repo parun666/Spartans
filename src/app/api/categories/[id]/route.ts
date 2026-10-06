@@ -2,7 +2,8 @@ import { prisma } from "@/lib/db";
 import { requireUser, audit, ApiError } from "@/lib/auth";
 import { json, errorResponse } from "@/lib/api";
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const params = await ctx.params;
   try {
     const user = await requireUser(req);
     const cat = await prisma.category.findFirst({ where: { id: params.id, userId: user.id } });
