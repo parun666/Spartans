@@ -333,17 +333,33 @@ describe("Dashboard analysis periods and sample data", () => {
     const beforeInvestment = await prisma.investment.findUnique({ where: { id: invIdA } });
     const beforeGoal = await prisma.goal.findUnique({ where: { id: goalIdA } });
     const beforeSip = await prisma.sip.findUnique({ where: { id: sipIdA } });
-    const body = JSON.stringify({ months: 3 });
+    const body = JSON.stringify({});
     const first = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body }));
     const second = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body }));
     const samples = await prisma.transaction.count({ where: { userId: idA, id: { startsWith: `sample_${idA}_` } } });
     const otherUserSamples = await prisma.transaction.count({ where: { userId: idB, id: { startsWith: `sample_${idB}_` } } });
+    const sampleTransactions = await prisma.transaction.findMany({
+      where: { userId: idA, id: { startsWith: `sample_${idA}_` } },
+      select: { date: true }
+    });
+    const sampledMonths = new Set(sampleTransactions.map((transaction: { date: Date }) => transaction.date.toISOString().slice(0, 7)));
+    const now = new Date();
+    const expectedMonths = Array.from({ length: 12 }, (_, index) =>
+      new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - index, 1)).toISOString().slice(0, 7)
+    );
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
-    expect(await first.json()).toEqual({ ok: true, months: 3 });
-    expect(samples).toBe(15);
+    expect(await first.json()).toEqual({ ok: true, months: 12 });
+    expect(samples).toBe(60);
     expect(otherUserSamples).toBe(0);
+    expect([...sampledMonths].sort()).toEqual([...expectedMonths].sort());
+    for (const months of [1, 6, 12]) {
+      const response = await dashboardGET(req(`/api/dashboard?months=${months}`, tokenA));
+      const dashboard = await response.json();
+      expect(dashboard.monthly).toHaveLength(months);
+      expect(dashboard.monthly.every((month: { income: number; expense: number }) => month.income > 0 && month.expense > 0)).toBe(true);
+    }
     expect(await prisma.transaction.findUnique({ where: { id: txIdA } })).toEqual(beforeTransaction);
     expect(await prisma.budget.findFirst({ where: { userId: idA, categoryId: budgetCatIdA, month: currentMonth } })).toEqual(existingBudget);
     expect(await prisma.investment.findUnique({ where: { id: invIdA } })).toEqual(beforeInvestment);
@@ -354,14 +370,14 @@ describe("Dashboard analysis periods and sample data", () => {
   });
 
   it("requires authentication and strict period input; opt-in sample insertion also works in production", async () => {
-    const unauthenticated = await sampleDataPOST(req("/api/demo/sample-data", undefined, { method: "POST", body: JSON.stringify({ months: 1 }) }));
+    const unauthenticated = await sampleDataPOST(req("/api/demo/sample-data", undefined, { method: "POST", body: JSON.stringify({}) }));
     const unexpectedField = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body: JSON.stringify({ months: 1, userId: idB }) }));
     expect(unauthenticated.status).toBe(401);
     expect(unexpectedField.status).toBe(400);
 
     vi.stubEnv("NODE_ENV", "production");
     try {
-      const confirmed = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body: JSON.stringify({ months: 1 }) }));
+      const confirmed = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body: JSON.stringify({}) }));
       expect(confirmed.status).toBe(200);
     } finally {
       vi.unstubAllEnvs();

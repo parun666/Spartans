@@ -92,3 +92,7 @@ export const transactionListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(1_000_000).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(10)
 }).strict();
+export const dashboardQuerySchema = z.object({
+  months: z.enum(["1", "3", "6", "12"]).default("12").transform(Number)
+}).strict();
+export const sampleDataSchema = z.object({}).strict();

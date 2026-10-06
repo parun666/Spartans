@@ -56,7 +56,7 @@ export default function DashboardPage() {
     onError: (e) => toast((e as Error).message, "error")
   });
   const addSampleData = useMutation({
-    mutationFn: () => apiFetch("/api/demo/sample-data", { method: "POST", body: JSON.stringify({ months }) }),
+    mutationFn: () => apiFetch("/api/demo/sample-data", { method: "POST", body: JSON.stringify({}) }),
     onSuccess: () => {
       toast("Sample history is ready; existing records were not changed.");
       qc.invalidateQueries();
@@ -94,13 +94,13 @@ export default function DashboardPage() {
               }
             }}
           >
-            {addSampleData.isPending ? "Adding samples…" : "Add sample data"}
+            {addSampleData.isPending ? "Adding samples…" : "Add 1-year sample data"}
           </Button>
           <Button variant="outline" onClick={() => { qc.invalidateQueries(); refetch(); }} aria-label="Refresh">Refresh</Button>
         </div>
       </div>
       <p className="text-xs text-slate-500">Transaction trends and category analysis use the selected period. Budget use and investment allocation show current snapshots.</p>
-      <p className="text-xs text-slate-500">Sample data is fictional, clearly labeled, and additive. Existing financial records are never reset or replaced.</p>
+      <p className="text-xs text-slate-500">Sample data covers the past 12 months, is fictional, and is added only when requested. Existing financial records are never reset or replaced.</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardTitle>Income</CardTitle><p className="text-xl font-bold text-green-600">{formatINR(Math.round(data.income * 100))}</p></Card>
