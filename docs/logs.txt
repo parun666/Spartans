@@ -1403,3 +1403,6 @@ Actions Taken:
 * Processed src/app/globals.css using @tailwindcss/postcss directly; passed.
 * Attempted npm run build; Prisma generate failed with EPERM renaming query_engine-windows.dll.node, so the build did not reach Next CSS compilation.
 * Did not push because Netlify environment variables are unconfigured and prior user choice was to wait.
+
+Commit SHA confirmation:
+064bcc09eace118f4e0c9dbf49a5535ffb6e191e
