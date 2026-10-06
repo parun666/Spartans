@@ -7,5 +7,6 @@ paths = [
   '''(^|/)node_modules/''',
   '''(^|/)\.venv/''',
   '''(^|/)\.next/''',
+  '''(^|/)\.next-e2e/''',
   '''(^|/)security-reports/'''
 ]

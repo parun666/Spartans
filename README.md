@@ -6,7 +6,7 @@ A complete, secure, local-first personal finance tracker.
 
 ## Stack (fixed)
 
-- **Next.js 14** App Router + **TypeScript**
+- **Next.js 15.5** App Router + **TypeScript**
 - **Tailwind CSS** + shadcn-style UI components (`src/components/ui`)
 - **Prisma** + **SQLite** (file DB, zero setup; schema is Postgres-compatible — switch the datasource provider to `postgresql` to migrate)
 - **Zod** validation on every mutation
@@ -40,7 +40,7 @@ npm run test:e2e   # Playwright (needs: npx playwright install chromium)
 | Route | Purpose |
 |---|---|
 | `/login`, `/register` | Auth (login rate-limited 5/5min) |
-| `/dashboard` | Income, expense, balance, savings rate, charts, recent activity, ↻ Refresh |
+| `/dashboard` | Income, expense, balance, savings rate, 1/3/6/12-month analytics, recent activity, optional additive sample history |
 | `/transactions` | Add/edit/delete modal w/ confirm, search, filters, sort, pagination in URL, Clear Filters |
 | `/budgets` | Budget limits per category per month, derived usage, warnings at 80% and 100% |
 | `/investments` | P/L and return %, "Market data unavailable — showing user-entered valuation." |
@@ -61,7 +61,7 @@ npm run test:e2e   # Playwright (needs: npx playwright install chromium)
 - `GET/POST /api/investments`, `PUT/DELETE /api/investments/[id]`
 - `GET/POST /api/sips`, `DELETE /api/sips/[id]`
 - `GET/POST /api/goals`, `PUT/DELETE /api/goals/[id]`
-- `GET /api/dashboard`, `GET /api/reports?type=…`, `GET /api/export?format=csv|json`
+- `GET /api/dashboard?months=1|3|6|12`, `POST /api/demo/sample-data` (authenticated, explicit opt-in, additive), `GET /api/reports?type=…`, `GET /api/export?format=csv|json`
 - `GET/PUT/DELETE /api/ai/config`, `POST /api/ai/chat`
 - `GET /api/admin/overview`, `GET /api/admin/users`, `PATCH /api/admin/users/[id]`
 - `GET /api/activity`, `DELETE /api/account`
@@ -77,9 +77,13 @@ npm run test:e2e   # Playwright (needs: npx playwright install chromium)
 - Audit log of auth/mutation events without secrets or request bodies
 - Export contains only the current user's data — no password hashes, sessions, or AI keys
 
+## Dashboard history and sample data
+
+Choose a 1-month, 3-month, 6-month, or 1-year range for transaction trends, totals, category analysis, and recent activity. Budget use and investment allocation remain current snapshots. “Add sample data” requires an explicit confirmation and adds clearly labeled fictional data only for the signed-in account; deterministic IDs make repeat requests idempotent, and existing records are never deleted or overwritten. Do not use sample records as real financial information.
+
 ## What reaches the AI
 
-Only minimal aggregates from the current user: monthly income/expense totals, savings rate, top expense categories, budget status, investment totals, goal progress, and the 5 most recent transaction summaries (description, category, amount, date). No emails of other users, no password hashes, no sessions, no API keys, no raw DB access, no SQL/shell/env from the model.
+Only minimized aggregates and category/budget/investment/goal summaries from the authenticated user are sent when that user configures a provider. Free-text transaction descriptions and notes are excluded. The model has no database, arbitrary SQL, shell, filesystem, environment, admin, or arbitrary HTTP tools. No emails of other users, password hashes, sessions, API keys, or encryption keys are sent.
 
 ## Actual vs projected
 

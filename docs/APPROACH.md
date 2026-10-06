@@ -120,3 +120,9 @@ User input flows through page-specific form controls into validation logic in `a
 - **Stack:** Next.js 14 App Router + TypeScript, Tailwind + shadcn-style UI, Prisma + SQLite (Postgres-compatible schema), Zod, Recharts, Vitest + Playwright, bcryptjs, jose JWT cookie sessions, TanStack Query.
 - **Money:** INTEGER PAISE everywhere; Intl en-IN formatting.
 - **Security:** requireUser/requireRole, per-row userId filters, login rate limit, rate-limited auth audit, AES-256-GCM AI keys, security headers, cascade account deletion, exports exclude secrets.
+
+### [2026-10-06 06:19 IST] Dashboard period analytics and opt-in sample history
+- **Focus:** Provide 1-, 3-, 6-, and 12-month dashboard analysis and useful fictional history without resetting user records.
+- **Decision:** The dashboard API validates an allowlisted month range and scopes all transaction-based analysis to the authenticated user's date-bounded records. Budget use and investment allocation remain current snapshots.
+- **Sample data:** A confirmed, authenticated request inserts clearly labeled sample transactions and sample assets only for that user. Stable per-user IDs and upserts make it repeatable without overwriting records; the former destructive reset helper is removed.
+- **Verification:** API tests cover range validation, user isolation, idempotence, and preservation of existing transaction/budget values. Playwright runs a production-mode build on a separate port and QA database to verify persistence without reusing or resetting a developer's app database.

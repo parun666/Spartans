@@ -21,6 +21,12 @@ test.describe("FinTrack E2E", () => {
     await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
     await expect(page.getByRole("link", { name: "AI" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Preinstalled data" })).toHaveCount(0);
+    await page.selectOption("#analysis-period", "1");
+    await expect(page.locator("#analysis-period")).toHaveValue("1");
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Add sample data" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Sample history is ready" })).toBeVisible();
+    await page.selectOption("#analysis-period", "3");
 
     // Add income
     await gotoReady(page, "/transactions");
@@ -88,7 +94,7 @@ test.describe("FinTrack E2E", () => {
     await page.getByRole("button", { name: "Add income" }).click();
     await expect(page.getByRole("status").filter({ hasText: "Earned amount added" })).toBeVisible();
     await expect(page.locator("img[src='x']")).toHaveCount(0);
-    await expect(page.getByText(xssPayload, { exact: true })).toBeVisible();
+    await expect(page.getByRole("listitem").filter({ hasText: xssPayload })).toBeVisible();
 
     // Investment
     await gotoReady(page, "/investments");

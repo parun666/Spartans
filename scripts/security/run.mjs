@@ -51,8 +51,8 @@ function command(name) {
   }
   if (name === "trivy") {
     return [
-      ["trivy", ["fs", "--scanners", "vuln,secret", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "--format", "json", "--output", "security-reports/trivy.json", "."]],
-      ["trivy", ["config", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "--format", "json", "--output", "security-reports/trivy-config.json", "."]]
+      ["trivy", ["fs", "--skip-dirs", ".next", "--skip-dirs", ".next-e2e", "--skip-dirs", "node_modules", "--skip-dirs", ".venv", "--skip-dirs", "security-reports", "--scanners", "vuln,secret", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "--format", "json", "--output", "security-reports/trivy.json", "."]],
+      ["trivy", ["config", "--skip-dirs", ".next", "--skip-dirs", ".next-e2e", "--skip-dirs", "node_modules", "--skip-dirs", ".venv", "--skip-dirs", "security-reports", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "--format", "json", "--output", "security-reports/trivy-config.json", "."]]
     ];
   }
   if (name === "trivy-image") {
