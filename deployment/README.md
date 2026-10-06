@@ -1,37 +1,40 @@
-# Deployment Documentation — Build Secure 24
+# Vercel deployment
 
-## Overview
+FinTrack uses SQLite for local development and a PostgreSQL schema for Vercel. Vercel Functions do not provide a durable local SQLite file; use Neon PostgreSQL for production persistence.
 
-This directory contains deployment configuration and deployment records for your application.
-Place all relevant infrastructure and deployment configuration files here.
+## One-time setup
 
----
+1. Create a Neon PostgreSQL project and database.
+2. Import this GitHub repository into Vercel as a Next.js project. The checked-in `vercel.json` selects `npm run build:vercel`.
+3. In Vercel project settings, configure these Production environment variables (and Preview only if using a separate preview database):
 
-## Live Deployment Reference
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | Neon pooled connection string |
+   | `DIRECT_URL` | Neon direct/unpooled connection string |
+   | `JWT_SECRET` | Unique random value, at least 32 characters |
+   | `AI_KEY_SECRET` | Different unique random value, at least 32 characters |
 
-- **Live Application URL:** 
-- **Hosting Platform:** 
-- **Access Credentials (if test demo accounts are needed for evaluators):**
-  - Role / User 1:
-  - Role / User 2:
+   Never commit these values or paste them into source files. `TRUST_PROXY` is optional and defaults to disabled.
+4. Apply the PostgreSQL migrations once, from a trusted local terminal with `DATABASE_URL` and `DIRECT_URL` set to the Neon values:
 
----
+   ```bash
+   npm run vercel:migrate
+   ```
 
-## Required Environment Variables
+5. Deploy from Vercel's Git integration or run `vercel deploy --prod` after linking the repository with the Vercel CLI.
 
-Document all required environment configuration keys needed to run the application:
+## Local verification
 
-| Variable Name | Description | Required (Yes/No) |
-|---------------|-------------|-------------------|
-| | | |
-| | | |
+```bash
+npm ci
+npm run build:vercel
+```
 
----
+The regular `npm run build`, local development server, and tests continue to use the SQLite schema. `npm run build:vercel` generates the Prisma client for PostgreSQL before compiling Next.js.
 
-## Build & Deployment Instructions
+## Data and deployment notes
 
-Provide step-by-step instructions for building and launching the deployment:
-
-1. 
-2. 
-3. 
+- Neon starts as a separate empty production database. Existing local SQLite records are not automatically copied; export/import or a reviewed migration is needed if they must be retained.
+- Use separate Neon databases for Production and Preview. Do not point Preview deployments at live financial data.
+- No live URL is recorded until Vercel deployment has actually succeeded.
