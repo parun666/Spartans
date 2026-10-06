@@ -1326,3 +1326,6 @@ Actions Taken:
 * Confirmed no postcss.config.mjs or netlify.toml exists in the repository; Netlify's guidance referred to the committed PostCSS plugin declaration.
 * The corrected config had been included in the clean isolated `npm run build` from the prior verification; that build passed Next.js compilation, lint/type checks, page generation, and route tracing.
 * Did not push because pending commits on main also trigger Vercel, whose Production environment was last verified to have no required variables.
+
+Commit SHA confirmation:
+7a00feb3ac3fe3d892538f523c4702b9e4570a93
