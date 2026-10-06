@@ -915,3 +915,43 @@ Actions Taken:
 * Ran `npm run typecheck`.
 * Reloaded the local browser page and confirmed hydration now ran; its API calls returned expected 401 because this browser session had no authenticated cookie.
 * Committed the fix as fbc5856b7376e5f5ea5d6bbbbb2c76ce2ed25346.
+
+================================================================================
+[2026-10-06T07:00:40+05:30] Populating dashboard sample history for all ranges
+================================================================================
+User Prompt (verbatim):
+<current_datetime>2026-10-06T06:58:51.317+05:30</current_datetime>
+
+in the dashboard data only 3 months data iscorrect add data to 1 month 6 month and 1 year data appropriately<attachment mimeType="text/x-vscode-simple-attachment" name="Browser Pages">
+The following browser pages are currently shared with you and can be interacted with using the browser tools:
+- [7c6b850d-e39a-4fc1-90e3-af9fa0367f88] FinTrack — Your money. Your insights. Your privacy. (http://localhost:3000/dashboard) (active)
+4 pages are open but not shared.
+Use the open_browser_page tool to open a new page or to help the user share an existing page.
+</attachment>
+
+Agent Response:
+I changed the opt-in sample-data action to create a complete rolling 12-month history rather than generating only as many months as the currently selected dashboard range. This fills missing historical sample months when clicked again, while upserts keep it idempotent and never modify real transaction records. The 1, 6, and 12 month views are now covered by API regression tests to verify every displayed month has income and expense sample activity. Click “Add 1-year sample data” once to fill any missing sample months; then switch the analysis period to 1 month, 6 months, or 1 year. Verification passed: `npm run typecheck`, targeted ESLint, and `npx vitest run tests/api.test.ts` (27 tests).
+
+Agent Response Summary:
+Sample data generation now fills the current and preceding 11 calendar months, so all supported period selectors have records. The API validates an empty request object, responds with a 12-month dataset marker, preserves idempotence and authenticated-user scoping, and regression-tests each range.
+
+Commit SHA:
+9ee688e972588cae803e9355d301a9c1813c00ff
+
+Files Modified / Created:
+* src/lib/demoData.ts (Modified)
+* src/lib/validate.ts (Modified)
+* src/app/api/demo/sample-data/route.ts (Modified)
+* src/app/dashboard/page.tsx (Modified)
+* tests/api.test.ts (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Changed sample generator to add 12 rolling months of fictional transactions and budgets idempotently.
+* Changed sample-data API schema and response for the complete 12-month dataset.
+* Updated dashboard action text to explain it fills one year of sample history.
+* Added assertions for sample records across 1-, 6-, and 12-month analysis ranges.
+* Ran `npx vitest run tests/api.test.ts` (27 passed).
+* Ran `npm run typecheck`.
+* Ran targeted ESLint across the changed implementation and tests.
+* Committed code as 9ee688e972588cae803e9355d301a9c1813c00ff.
