@@ -54,13 +54,18 @@ export function getTrustedClientIp(req: Request): string | null {
 
 export async function getUserByToken(token: string | undefined): Promise<SessionUser | null> {
   if (!token) return null;
+  const secret = getJwtSecret();
+  let sid: string;
   try {
-    const { payload } = await jwtVerify(token, getJwtSecret());
-    const sid = String(payload.sid ?? "");
-    const sess = await prisma.session.findUnique({ where: { token: sid }, include: { user: true } });
-    if (!sess || sess.expiresAt < new Date() || !sess.user.enabled) return null;
-    return sess.user;
-  } catch { return null; }
+    const { payload } = await jwtVerify(token, secret);
+    sid = String(payload.sid ?? "");
+  } catch {
+    return null;
+  }
+  if (!sid) return null;
+  const sess = await prisma.session.findUnique({ where: { token: sid }, include: { user: true } });
+  if (!sess || sess.expiresAt < new Date() || !sess.user.enabled) return null;
+  return sess.user;
 }
 
 export async function requireUser(req: Request): Promise<SessionUser> {

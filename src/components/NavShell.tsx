@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { apiFetch } from "@/lib/client";
 import {
   LayoutDashboard, ArrowLeftRight, PiggyBank, LineChart, Repeat, Target, BarChart3, Shield, Settings, ShieldCheck, LogOut
@@ -21,10 +22,15 @@ const NAV = [
 
 export default function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const qc = useQueryClient();
-  const { data } = useQuery({ queryKey: ["me"], queryFn: () => apiFetch<{ user: { role: string; name: string } | null }>("/api/auth/me") });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["me"], queryFn: () => apiFetch<{ user: { role: string; name: string } | null }>("/api/auth/me") });
   const user = data?.user;
   const isAuthPage = pathname === "/login" || pathname === "/register";
+
+  useEffect(() => {
+    if (!isAuthPage && !isLoading && !isError && data && !data.user) router.replace("/login");
+  }, [data, isAuthPage, isError, isLoading, router]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST", headers: { "content-type": "application/json" } });
@@ -32,7 +38,17 @@ export default function NavShell({ children }: { children: React.ReactNode }) {
     window.location.href = "/login";
   }
 
-  if (isAuthPage || !user) return <main className="min-h-screen bg-slate-50">{children}</main>;
+  if (isAuthPage) return <main className="min-h-screen bg-slate-50">{children}</main>;
+  if (isLoading) return <main className="min-h-screen bg-slate-50 p-6" role="status">Checking your session…</main>;
+  if (isError) {
+    return (
+      <main className="min-h-screen bg-slate-50 p-6" role="alert">
+        <p>Unable to verify your session. Check the database configuration or retry.</p>
+        <button className="mt-3 rounded-lg border px-4 py-2" onClick={() => refetch()}>Retry</button>
+      </main>
+    );
+  }
+  if (!user) return <main className="min-h-screen bg-slate-50 p-6" role="status">Redirecting to sign in…</main>;
 
   return (
     <div className="app-shell min-h-screen md:flex">

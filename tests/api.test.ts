@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 import { execSync } from "child_process";
 
 // API-level BOLA / RBAC / rate-limit tests against real SQLite test DB.
-let txGET: any, txPOST: any, txPUT: any, txDELETE: any, budgetGET: any, budgetPOST: any, dashboardGET: any, sampleDataPOST: any, invGET: any, invPUT: any, invDELETE: any, goalGET: any, goalPUT: any, goalDELETE: any, sipGET: any, sipDELETE: any, exportGET: any, adminGET: any, adminUserPATCH: any, loginPOST: any, logoutPOST: any, aiPOST: any;
+let txGET: any, txPOST: any, txPUT: any, txDELETE: any, budgetGET: any, budgetPOST: any, dashboardGET: any, sampleDataPOST: any, invGET: any, invPUT: any, invDELETE: any, goalGET: any, goalPUT: any, goalDELETE: any, sipGET: any, sipDELETE: any, exportGET: any, adminGET: any, adminUserPATCH: any, loginPOST: any, logoutPOST: any, meGET: any, aiPOST: any;
 let aiCtx: any;
 let prisma: any, createSession: any, hashPassword: any, getUserByToken: any, sessionCookieHeader: any, encryptKey: any;
 let tokenA: string, tokenB: string, tokenAdmin: string, idA: string, idB: string, adminId: string, adminTwoId: string;
@@ -43,6 +43,7 @@ beforeAll(async () => {
   adminUserPATCH = (await import("@/app/api/admin/users/[id]/route")).PATCH;
   loginPOST = (await import("@/app/api/auth/login/route")).POST;
   logoutPOST = (await import("@/app/api/auth/logout/route")).POST;
+  meGET = (await import("@/app/api/auth/me/route")).GET;
   aiCtx = await import("@/lib/aiTools");
   aiPOST = (await import("@/app/api/ai/chat/route")).POST;
   encryptKey = (await import("@/lib/aiCrypto")).encryptKey;
@@ -266,6 +267,16 @@ describe("RBAC & rate limiting", () => {
     expect(await getUserByToken(token)).toBeNull();
     const response = await dashboardGET(req("/api/dashboard", tokenA));
     expect(response.headers.get("access-control-allow-origin")).toBeNull();
+  });
+  it("reports session database failures as server errors instead of invalid sessions", async () => {
+    const findUnique = vi.spyOn(prisma.session, "findUnique").mockRejectedValueOnce(new Error("Database unavailable"));
+    try {
+      const response = await meGET(req("/api/auth/me", tokenA));
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ error: "Internal error" });
+    } finally {
+      findUnique.mockRestore();
+    }
   });
   it("stubs AI provider requests and constrains prompt-injection attempts", async () => {
     await prisma.aiConfig.create({

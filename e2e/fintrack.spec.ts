@@ -7,6 +7,12 @@ async function gotoReady(page: Page, url: string) {
 }
 
 test.describe("FinTrack E2E", () => {
+  test("redirects visitors without a session to sign in", async ({ page }) => {
+    await page.goto("/dashboard");
+    await page.waitForURL("**/login", { timeout: 10000 });
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  });
+
   test("register → transaction → budget → dashboard → search/filter → edit/delete → investment → SIP → goal → report → export → logout/login → persistence", async ({ page }) => {
     const email = `e2e${Date.now()}@test.dev`;
 
