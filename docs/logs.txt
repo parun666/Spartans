@@ -1087,3 +1087,94 @@ Actions Taken:
 * Confirmed deployment build failed with Prisma error P1012: missing `DIRECT_URL`.
 * Did not add, reveal, or change any secret environment variable.
 * Did not redeploy because the required Neon direct connection string is unavailable in the workspace.
+
+================================================================================
+[2026-10-06T08:48:18+05:30] SESSION START
+================================================================================
+Agent: Claude Code (Netlify agent runner)
+Repo Root: /opt/build/repo
+Branch: main
+System Time: 2026-10-06T08:48:18+05:30
+Deadline: 2026-10-06T11:00:00+05:30
+
+================================================================================
+[2026-10-06T08:48:18+05:30] Fix Netlify build: Tailwind v4 PostCSS plugin
+================================================================================
+User Prompt (verbatim):
+The Netlify deploy errored, with the following guidance provided: The build fails at line 88 because `tailwindcss` is being used directly as a PostCSS plugin, but in Tailwind CSS v4+, the PostCSS plugin was moved to a separate package (`@tailwindcss/postcss`). [Netlify build log excerpt omitted for length: "Error: It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin..." in ./src/app/globals.css; "Command failed with exit code 1: npm run build"]
+
+Agent Response:
+Switched postcss.config.js to use the `@tailwindcss/postcss` plugin (already listed in devDependencies at 4.3.3) and removed autoprefixer from the PostCSS pipeline since Tailwind v4 handles vendor prefixing. Replaced the Tailwind v3 `@tailwind base/components/utilities` directives in src/app/globals.css with the v4 `@import "tailwindcss";` entry plus `@config "../../tailwind.config.ts";` so the existing config keeps applying. Verified globals.css compiles through PostCSS with the new plugin.
+
+Agent Response Summary:
+Fixed the Netlify build failure caused by Tailwind v4 rejecting `tailwindcss` as a direct PostCSS plugin. Updated the PostCSS config and the CSS entry point to Tailwind v4 syntax. Note: onboarding agreement was previously recorded for this same project at its Windows checkout path.
+
+Commit SHA:
+Pending — commits are created by the Netlify agent runner, not the agent.
+
+Files Modified / Created:
+* postcss.config.js (Modified)
+* src/app/globals.css (Modified)
+* docs/logs.txt (Modified)
+* .netlify/results.md (Created)
+
+Actions Taken:
+* Inspected postcss.config.js, package.json, tailwind.config.ts, src/app/globals.css.
+* Edited postcss.config.js and src/app/globals.css.
+* Compiled src/app/globals.css with postcss + @tailwindcss/postcss via a node one-liner (success).
+
+================================================================================
+[2026-10-06T08:49:30+05:30] Fix Netlify build: Next.js 15 async route params + ESLint config
+================================================================================
+User Prompt (verbatim):
+(Automated follow-up) The build is failing after the previous changes: "ESLint: Failed to load config next/core-web-vitals" and "Type error: Route src/app/api/categories/[id]/route.ts has an invalid DELETE export: Type { params: { id: string; }; } is not a valid type for the function's second argument." Fix the build errors.
+
+Agent Response:
+Updated all dynamic API route handlers to the Next.js 15 signature where the second argument's params is a Promise, awaiting it at the top of each handler. Installed eslint-config-next@15.5.24 as a devDependency so .eslintrc.json's "next/core-web-vitals" resolves. Verified with tsc --noEmit (clean) and next lint (no warnings or errors).
+
+Agent Response Summary:
+Fixed the type-check failure caused by Next.js 15 requiring async route params, and the missing ESLint config package. No behavior changes to the API handlers.
+
+Commit SHA:
+Pending — commits are created by the Netlify agent runner, not the agent.
+
+Files Modified / Created:
+* src/app/api/categories/[id]/route.ts (Modified)
+* src/app/api/sips/[id]/route.ts (Modified)
+* src/app/api/goals/[id]/route.ts (Modified)
+* src/app/api/transactions/[id]/route.ts (Modified)
+* src/app/api/investments/[id]/route.ts (Modified)
+* package.json (Modified)
+* package-lock.json (Modified)
+* docs/logs.txt (Modified)
+* .netlify/results.md (Modified)
+
+Actions Taken:
+* Rewrote route handler context types to { params: Promise<{ id: string }> } and awaited params.
+* npm install -D eslint-config-next@15.5.24
+* Ran npx tsc --noEmit and npx next lint (both clean).
+
+================================================================================
+[2026-10-06T08:50:44+05:30] Fix Netlify build: lazy secret loading during page data collection
+================================================================================
+User Prompt (verbatim):
+(Automated follow-up) The build is failing after the previous changes: "Error: JWT_SECRET must be configured ... Failed to collect page data for /api/account". Fix the build errors.
+
+Agent Response:
+src/lib/auth.ts and src/lib/aiCrypto.ts validated JWT_SECRET and AI_KEY_SECRET at module import time, so next build crashed while importing API routes to collect page data (secrets are not present at build time). Both are now resolved lazily on first use with the same fail-closed validation (missing or under 32 chars still throws). JWT_SECRET and AI_KEY_SECRET (each 32+ chars) must be set as Netlify environment variables for the app to work at runtime.
+
+Agent Response Summary:
+Deferred secret validation from import time to first use so builds no longer need runtime secrets. Security behavior is unchanged: requests that need a missing secret still fail closed. tsc --noEmit passes.
+
+Commit SHA:
+Pending — commits are created by the Netlify agent runner, not the agent.
+
+Files Modified / Created:
+* src/lib/auth.ts (Modified)
+* src/lib/aiCrypto.ts (Modified)
+* docs/logs.txt (Modified)
+* .netlify/results.md (Modified)
+
+Actions Taken:
+* Replaced module-level secret constants with memoized getters.
+* Ran npx tsc --noEmit (clean).

@@ -6,11 +6,15 @@ function getKey() {
   if (secret.length < 32) throw new Error("AI_KEY_SECRET must be at least 32 characters");
   return crypto.createHash("sha256").update(secret).digest();
 }
-const AI_KEY = getKey();
+// Resolved lazily so `next build` can import route modules without runtime secrets.
+let aiKey: Buffer | undefined;
+function getAiKey(): Buffer {
+  return (aiKey ??= getKey());
+}
 
 export function encryptKey(plain: string): string {
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv("aes-256-gcm", AI_KEY, iv);
+  const cipher = crypto.createCipheriv("aes-256-gcm", getAiKey(), iv);
   const data = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
   const tag = cipher.getAuthTag();
   return Buffer.concat([iv, tag, data]).toString("base64");
@@ -20,7 +24,7 @@ export function decryptKey(cipherB64: string): string {
   const iv = buf.subarray(0, 12);
   const tag = buf.subarray(12, 28);
   const data = buf.subarray(28);
-  const decipher = crypto.createDecipheriv("aes-256-gcm", AI_KEY, iv);
+  const decipher = crypto.createDecipheriv("aes-256-gcm", getAiKey(), iv);
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8");
 }

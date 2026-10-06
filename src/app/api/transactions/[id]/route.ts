@@ -4,9 +4,10 @@ import { transactionSchema } from "@/lib/validate";
 import { json, errorResponse, parseBody } from "@/lib/api";
 import { parseAmountToPaise } from "@/lib/money";
 
-type Ctx = { params: { id: string } };
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function PUT(req: Request, { params }: Ctx) {
+export async function PUT(req: Request, ctx: Ctx) {
+  const params = await ctx.params;
   try {
     const user = await requireUser(req);
     const data = await parseBody(req, transactionSchema);
@@ -20,7 +21,8 @@ export async function PUT(req: Request, { params }: Ctx) {
     return json({ ok: true });
   } catch (e) { return errorResponse(e); }
 }
-export async function DELETE(req: Request, { params }: Ctx) {
+export async function DELETE(req: Request, ctx: Ctx) {
+  const params = await ctx.params;
   try {
     const user = await requireUser(req);
     const res = await prisma.transaction.deleteMany({ where: { id: params.id, userId: user.id } });
