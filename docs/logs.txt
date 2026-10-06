@@ -875,3 +875,43 @@ Actions Taken:
 * Ran `npx eslint src/app/dashboard/page.tsx src/app/api/dashboard/route.ts tests/api.test.ts`.
 * Ran `npm run build` successfully.
 * Committed dashboard changes as 48f512e5a6ce40bf51f76d1772a89cc119f3c3fc.
+
+================================================================================
+[2026-10-06T06:56:33+05:30] Fixing dashboard stuck on loading placeholders
+================================================================================
+User Prompt (verbatim):
+<current_datetime>2026-10-06T06:53:02.385+05:30</current_datetime>
+
+its showing like this
+
+<system_reminder>
+The user mentioned images and they have been attached to this message in the order they were mentioned.
+</system_reminder>
+<system_reminder>
+The following attached files are read-only snapshots of content the user shared (pasted text, an unsaved editor, or a diff view):
+- c:\Users\PARUN\AppData\Roaming\Code\agentSessionData\2e333b20-a908-41bf-b895-c38b50c4a2f8\attachments\7bdee15f-4adf-488a-9d08-22260a5e64a6\Pasted Image.png
+</system_reminder>
+
+Agent Response:
+The dashboard was stuck on its loading placeholders because the local development Content Security Policy blocked Next.js's React-refresh script from running. I changed the configuration to omit CSP only while NODE_ENV is development, preserving the strict production CSP (including frame-ancestors 'none' and no unsafe-eval). The browser now hydrates and makes API requests; my isolated browser had no login cookie, so it correctly displayed the authentication-dependent error state after receiving 401 responses. Refresh your local dashboard after the Next.js dev server restarts. Verification passed: `npx vitest run tests/security/runtime.test.ts` (10 tests), `npx eslint next.config.js tests/security/runtime.test.ts`, and `npm run typecheck`.
+
+Agent Response Summary:
+Identified that CSP blocked client-side hydration in the local development app, leaving server-rendered skeletons visible indefinitely. Scoped CSP omission to development only and added a regression test; production security headers remain enabled and tests pass.
+
+Commit SHA:
+fbc5856b7376e5f5ea5d6bbbbb2c76ce2ed25346
+
+Files Modified / Created:
+* next.config.js (Modified)
+* tests/security/runtime.test.ts (Modified)
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Reproduced the browser error showing React refresh blocked by the development CSP.
+* Omitted CSP response header only for NODE_ENV=development; left production CSP unchanged.
+* Added a development CSP regression test.
+* Ran `npx vitest run tests/security/runtime.test.ts` (10 passed).
+* Ran `npx eslint next.config.js tests/security/runtime.test.ts`.
+* Ran `npm run typecheck`.
+* Reloaded the local browser page and confirmed hydration now ran; its API calls returned expected 401 because this browser session had no authenticated cookie.
+* Committed the fix as fbc5856b7376e5f5ea5d6bbbbb2c76ce2ed25346.
