@@ -4,6 +4,7 @@ import { middleware } from "@/middleware";
 import { parseBody } from "@/lib/api";
 import { getTrustedClientIp } from "@/lib/auth";
 import { z } from "zod";
+import nextConfig from "../../next.config.js";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -76,6 +77,21 @@ describe("security middleware", () => {
     });
 
     expect(middleware(request).status).toBe(413);
+  });
+
+  it("configures frame protection, production HSTS and a CSP without unsafe-eval", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      const configured = await nextConfig.headers?.();
+      expect(configured).toBeDefined();
+      const headers = configured?.[0]?.headers ?? [];
+      const policy = headers.find((header: { key: string }) => header.key === "Content-Security-Policy")?.value;
+      expect(policy).toContain("frame-ancestors 'none'");
+      expect(policy).not.toContain("unsafe-eval");
+      expect(headers.some((header: { key: string }) => header.key === "Strict-Transport-Security")).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 
