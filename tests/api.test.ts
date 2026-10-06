@@ -88,11 +88,11 @@ describe("BOLA: transactions", () => {
     expect(body.total).toBe(0);
   });
   it("USER_B cannot update USER_A transaction", async () => {
-    const res = await txPUT(req(`/api/transactions/${txIdA}`, tokenB, { method: "PUT", body: JSON.stringify({ type: "EXPENSE", amount: 1, categoryId: budgetCatIdA, description: "x", date: new Date().toISOString() }) }), { params: { id: txIdA } });
+    const res = await txPUT(req(`/api/transactions/${txIdA}`, tokenB, { method: "PUT", body: JSON.stringify({ type: "EXPENSE", amount: 1, categoryId: budgetCatIdA, description: "x", date: new Date().toISOString() }) }), { params: Promise.resolve({ id: txIdA }) });
     expect(res.status).toBe(404);
   });
   it("USER_B cannot delete USER_A transaction", async () => {
-    const res = await txDELETE(req(`/api/transactions/${txIdA}`, tokenB, { method: "DELETE" }), { params: { id: txIdA } });
+    const res = await txDELETE(req(`/api/transactions/${txIdA}`, tokenB, { method: "DELETE" }), { params: Promise.resolve({ id: txIdA }) });
     expect(res.status).toBe(404);
   });
 });
@@ -122,20 +122,20 @@ describe("BOLA: budgets / investments / goals / export / AI context", () => {
     expect((await sips.json()).sips).toHaveLength(0);
   });
   it("investment cross-user update/delete blocked", async () => {
-    const put = await invPUT(req(`/api/investments/${invIdA}`, tokenB, { method: "PUT", body: JSON.stringify({ name: "x", type: "EQUITY", invested: 1, current: 1 }) }), { params: { id: invIdA } });
+    const put = await invPUT(req(`/api/investments/${invIdA}`, tokenB, { method: "PUT", body: JSON.stringify({ name: "x", type: "EQUITY", invested: 1, current: 1 }) }), { params: Promise.resolve({ id: invIdA }) });
     expect(put.status).toBe(404);
-    const del = await invDELETE(req(`/api/investments/${invIdA}`, tokenB, { method: "DELETE" }), { params: { id: invIdA } });
+    const del = await invDELETE(req(`/api/investments/${invIdA}`, tokenB, { method: "DELETE" }), { params: Promise.resolve({ id: invIdA }) });
     expect(del.status).toBe(404);
   });
   it("goal cross-user delete blocked", async () => {
-    const del = await goalDELETE(req(`/api/goals/${goalIdA}`, tokenB, { method: "DELETE" }), { params: { id: goalIdA } });
+    const del = await goalDELETE(req(`/api/goals/${goalIdA}`, tokenB, { method: "DELETE" }), { params: Promise.resolve({ id: goalIdA }) });
     expect(del.status).toBe(404);
   });
   it("USER_B cannot update USER_A goals or delete USER_A SIPs", async () => {
     const goal = await goalPUT(req(`/api/goals/${goalIdA}`, tokenB, {
       method: "PUT", body: JSON.stringify({ name: "stolen", target: 500, saved: 0 })
-    }), { params: { id: goalIdA } });
-    const sip = await sipDELETE(req(`/api/sips/${sipIdA}`, tokenB, { method: "DELETE" }), { params: { id: sipIdA } });
+    }), { params: Promise.resolve({ id: goalIdA }) });
+    const sip = await sipDELETE(req(`/api/sips/${sipIdA}`, tokenB, { method: "DELETE" }), { params: Promise.resolve({ id: sipIdA }) });
     expect(goal.status).toBe(404);
     expect(sip.status).toBe(404);
   });
@@ -196,13 +196,13 @@ describe("RBAC & rate limiting", () => {
   it("blocks administrator self-demotion and removal of the last active admin", async () => {
     const selfDemotion = await adminUserPATCH(req(`/api/admin/users/${adminId}`, tokenAdmin, {
       method: "PATCH", body: JSON.stringify({ role: "USER" })
-    }), { params: { id: adminId } });
+    }), { params: Promise.resolve({ id: adminId }) });
     const otherAdminDemotion = await adminUserPATCH(req(`/api/admin/users/${adminTwoId}`, tokenAdmin, {
       method: "PATCH", body: JSON.stringify({ role: "USER" })
-    }), { params: { id: adminTwoId } });
+    }), { params: Promise.resolve({ id: adminTwoId }) });
     const lastAdminDisable = await adminUserPATCH(req(`/api/admin/users/${adminId}`, tokenAdmin, {
       method: "PATCH", body: JSON.stringify({ enabled: false })
-    }), { params: { id: adminId } });
+    }), { params: Promise.resolve({ id: adminId }) });
     expect(selfDemotion.status).toBe(409);
     expect(otherAdminDemotion.status).toBe(200);
     expect(lastAdminDisable.status).toBe(409);

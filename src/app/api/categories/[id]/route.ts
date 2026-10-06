@@ -2,10 +2,11 @@ import { prisma } from "@/lib/db";
 import { requireUser, audit, ApiError } from "@/lib/auth";
 import { json, errorResponse } from "@/lib/api";
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const user = await requireUser(req);
-    const cat = await prisma.category.findFirst({ where: { id: params.id, userId: user.id } });
+    const cat = await prisma.category.findFirst({ where: { id: id, userId: user.id } });
     if (!cat) throw new ApiError(404, "Not found");
     const inUse = await prisma.transaction.count({ where: { categoryId: cat.id } });
     if (inUse > 0) return json({ error: "Category is used by transactions" }, { status: 409 });

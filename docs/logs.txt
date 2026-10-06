@@ -1329,3 +1329,57 @@ Actions Taken:
 
 Commit SHA confirmation:
 7a00feb3ac3fe3d892538f523c4702b9e4570a93
+
+================================================================================
+[2026-10-06T10:04:03+05:30] Fix Netlify build: Tailwind v4 PostCSS plugin and CSS entry
+================================================================================
+User Prompt (verbatim):
+The Netlify deploy errored: "It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin. The PostCSS plugin has moved to a separate package..." (full Netlify build log and guidance provided; build command `npm run build`, failing on ./src/app/globals.css).
+
+Agent Response:
+Verified that postcss.config.js at HEAD already uses "@tailwindcss/postcss" and that @tailwindcss/postcss@4.3.3 is in package.json and package-lock.json, so the failing deploy most likely built an older commit. Found a remaining Tailwind v4 incompatibility: src/app/globals.css still used the v3 directives (@tailwind base/components/utilities), which in v4 do not load the default theme or preflight, leaving classes such as text-slate-400 and bg-blue-500 unstyled. Replaced them with the v4 entry point @import "tailwindcss";.
+
+Agent Response Summary:
+Confirmed the PostCSS plugin fix is present and migrated the global stylesheet to the Tailwind v4 import syntax so the build and styling both work. No dependency changes were needed. Commit is created by the Netlify agent runner, not by the agent.
+
+Commit SHA:
+Pending (created by Netlify agent system).
+
+Files Modified / Created:
+* src/app/globals.css (Modified)
+* docs/logs.txt (Modified)
+* .netlify/results.md (Created)
+
+Actions Taken:
+* Inspected postcss.config.js (working tree and HEAD), package.json, src/app/globals.css.
+* Edited src/app/globals.css to use @import "tailwindcss".
+
+================================================================================
+[2026-10-06T10:05:40+05:30] Fix Next.js 15 route params types and ESLint config for Netlify build
+================================================================================
+User Prompt (verbatim):
+Build failed after previous fix: "ESLint: Failed to load config \"next/core-web-vitals\" to extend from. Referenced from: /opt/build/repo/.eslintrc.json" and "Type error: Route \"src/app/api/categories/[id]/route.ts\" has an invalid \"DELETE\" export: Type \"{ params: { id: string; }; }\" is not a valid type for the function's second argument." Task: analyze and fix the build errors without reverting.
+
+Agent Response:
+The Tailwind fix worked (CSS compiled successfully); the build now stopped at lint/type checking. Next.js 15 passes dynamic route params as a Promise, so every [id] API route handler (categories, goals, investments, sips, transactions) was updated to type params as Promise<{ id: string }> and await it, matching the existing admin/users route. Tests calling the handlers now pass Promise.resolve({ id }). .eslintrc.json extended next/core-web-vitals, but eslint-config-next is not installed; it was replaced with a config using the installed @typescript-eslint and react-hooks plugins. The two resulting lint errors were fixed (unused CardTitle import in goals page; allowed intentional while(true) loop). Local tsc --noEmit and eslint src both pass.
+
+Agent Response Summary:
+Fixed Next.js 15 async params typing in all dynamic API routes and their tests, and replaced the broken ESLint extends with installed plugins so linting during next build succeeds. No dependency changes. Commit is created by the Netlify agent runner.
+
+Commit SHA:
+Pending (created by Netlify agent system).
+
+Files Modified / Created:
+* src/app/api/categories/[id]/route.ts (Modified)
+* src/app/api/goals/[id]/route.ts (Modified)
+* src/app/api/investments/[id]/route.ts (Modified)
+* src/app/api/sips/[id]/route.ts (Modified)
+* src/app/api/transactions/[id]/route.ts (Modified)
+* src/app/goals/page.tsx (Modified)
+* tests/api.test.ts (Modified)
+* .eslintrc.json (Modified)
+* docs/logs.txt (Modified)
+* .netlify/results.md (Modified)
+
+Actions Taken:
+* Ran npx tsc --noEmit -p . (pass) and npx eslint src (pass).

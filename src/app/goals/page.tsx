@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/client";
-import { Card, CardTitle, Skeleton } from "@/components/ui/card";
+import { Card, Skeleton } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Dialog, ConfirmDialog } from "@/components/ui/dialog";
