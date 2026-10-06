@@ -1,16 +1,24 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/client";
 import { Card, CardTitle, Skeleton } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
-import { IncomeExpenseBar, CategorySpendBar, BudgetUseBar, MonthlySpendLine, MonthlySavingsLine } from "@/components/charts/Charts";
 import { formatINR } from "@/lib/money";
 import { useToast } from "@/components/Toast";
 
+const ChartLoading = () => <div className="h-[260px] animate-pulse rounded bg-slate-100" aria-label="Loading chart" />;
+const IncomeExpenseBar = dynamic(() => import("@/components/charts/Charts").then((module) => module.IncomeExpenseBar), { loading: ChartLoading });
+const CategorySpendBar = dynamic(() => import("@/components/charts/Charts").then((module) => module.CategorySpendBar), { loading: ChartLoading });
+const BudgetUseBar = dynamic(() => import("@/components/charts/Charts").then((module) => module.BudgetUseBar), { loading: ChartLoading });
+const MonthlySpendLine = dynamic(() => import("@/components/charts/Charts").then((module) => module.MonthlySpendLine), { loading: ChartLoading });
+const MonthlySavingsLine = dynamic(() => import("@/components/charts/Charts").then((module) => module.MonthlySavingsLine), { loading: ChartLoading });
+
 type DashboardData = {
   income: number; expense: number; balance: number; savingsRatePct: number | null;
+  rangeMonths: number;
   monthly: { month: string; income: number; expense: number; savings: number }[];
   categorySplit: { name: string; value: number }[];
   highExpense: { name: string; value: number }[];
@@ -23,7 +31,8 @@ type Cat = { id: string; name: string; kind: string };
 export default function DashboardPage() {
   const qc = useQueryClient();
   const toast = useToast();
-  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["dashboard"], queryFn: () => apiFetch<DashboardData>("/api/dashboard") });
+  const [months, setMonths] = useState(6);
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ["dashboard", months], queryFn: () => apiFetch<DashboardData>(`/api/dashboard?months=${months}`) });
   const { data: cats } = useQuery({ queryKey: ["categories"], queryFn: () => apiFetch<{ categories: Cat[] }>("/api/categories") });
   const categories = useMemo(() => cats?.categories ?? [], [cats?.categories]);
   const [quick, setQuick] = useState({ type: "INCOME", amount: "", description: "Quick entry", categoryId: "" });
@@ -46,6 +55,14 @@ export default function DashboardPage() {
     },
     onError: (e) => toast((e as Error).message, "error")
   });
+  const addSampleData = useMutation({
+    mutationFn: () => apiFetch("/api/demo/sample-data", { method: "POST", body: JSON.stringify({ months }) }),
+    onSuccess: () => {
+      toast("Sample history is ready; existing records were not changed.");
+      qc.invalidateQueries();
+    },
+    onError: (error) => toast((error as Error).message, "error")
+  });
 
   if (isLoading) return <div className="grid grid-cols-1 md:grid-cols-4 gap-4">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-28" />)}</div>;
   if (isError || !data) return <Card><p className="text-red-600">Could not load dashboard.</p><Button variant="outline" onClick={() => refetch()}>Retry</Button></Card>;
@@ -58,9 +75,32 @@ export default function DashboardPage() {
           <p className="text-sm text-slate-500">Preview monthly savings, high expenditure, and your latest money movement.</p>
         </div>
         <div className="flex flex-wrap gap-2 justify-end">
+          <div>
+            <Label htmlFor="analysis-period">Analysis period</Label>
+            <Select id="analysis-period" value={months} onChange={(event) => setMonths(Number(event.target.value))}>
+              <option value={1}>1 month</option>
+              <option value={3}>3 months</option>
+              <option value={6}>6 months</option>
+              <option value={12}>1 year</option>
+            </Select>
+          </div>
+          <Button
+            variant="outline"
+            className="self-end"
+            disabled={addSampleData.isPending}
+            onClick={() => {
+              if (window.confirm("Add fictional sample records for this period? Existing financial records will not be changed.")) {
+                addSampleData.mutate();
+              }
+            }}
+          >
+            {addSampleData.isPending ? "Adding samples…" : "Add sample data"}
+          </Button>
           <Button variant="outline" onClick={() => { qc.invalidateQueries(); refetch(); }} aria-label="Refresh">Refresh</Button>
         </div>
       </div>
+      <p className="text-xs text-slate-500">Transaction trends and category analysis use the selected period. Budget use and investment allocation show current snapshots.</p>
+      <p className="text-xs text-slate-500">Sample data is fictional, clearly labeled, and additive. Existing financial records are never reset or replaced.</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardTitle>Income</CardTitle><p className="text-xl font-bold text-green-600">{formatINR(Math.round(data.income * 100))}</p></Card>

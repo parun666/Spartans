@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 import { execSync } from "child_process";
 
 // API-level BOLA / RBAC / rate-limit tests against real SQLite test DB.
-let txGET: any, txPOST: any, txPUT: any, txDELETE: any, budgetGET: any, budgetPOST: any, dashboardGET: any, invGET: any, invPUT: any, invDELETE: any, goalGET: any, goalPUT: any, goalDELETE: any, sipGET: any, sipDELETE: any, exportGET: any, adminGET: any, adminUserPATCH: any, loginPOST: any, logoutPOST: any, aiPOST: any;
+let txGET: any, txPOST: any, txPUT: any, txDELETE: any, budgetGET: any, budgetPOST: any, dashboardGET: any, sampleDataPOST: any, invGET: any, invPUT: any, invDELETE: any, goalGET: any, goalPUT: any, goalDELETE: any, sipGET: any, sipDELETE: any, exportGET: any, adminGET: any, adminUserPATCH: any, loginPOST: any, logoutPOST: any, aiPOST: any;
 let aiCtx: any;
 let prisma: any, createSession: any, hashPassword: any, getUserByToken: any, sessionCookieHeader: any, encryptKey: any;
 let tokenA: string, tokenB: string, tokenAdmin: string, idA: string, idB: string, adminId: string, adminTwoId: string;
@@ -29,6 +29,7 @@ beforeAll(async () => {
   budgetGET = (await import("@/app/api/budgets/route")).GET;
   budgetPOST = (await import("@/app/api/budgets/route")).POST;
   dashboardGET = (await import("@/app/api/dashboard/route")).GET;
+  sampleDataPOST = (await import("@/app/api/demo/sample-data/route")).POST;
   invGET = (await import("@/app/api/investments/route")).GET;
   invPUT = (await import("@/app/api/investments/[id]/route")).PUT;
   invDELETE = (await import("@/app/api/investments/[id]/route")).DELETE;
@@ -102,6 +103,7 @@ describe("BOLA: budgets / investments / goals / export / AI context", () => {
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.budgetUse).toContainEqual(expect.objectContaining({ name: "Groceries" }));
+    expect(body.budgetUse).toContainEqual(expect.objectContaining({ name: "Groceries", used: 1234.56 }));
     expect(body.budgetUse.some((budget: { name: string }) => budget.name === budgetCatIdA)).toBe(false);
   });
 
@@ -289,6 +291,80 @@ describe("RBAC & rate limiting", () => {
     } finally {
       globalThis.fetch = originalFetch;
       await prisma.aiConfig.deleteMany({ where: { userId: idA } });
+    }
+  });
+});
+
+describe("Dashboard analysis periods and sample data", () => {
+  it("returns the requested 1, 3, 6, and 12 calendar-month buckets and rejects other ranges", async () => {
+    const twelveMonthBaseline = await dashboardGET(req("/api/dashboard?months=12", tokenA));
+    const baselineData = await twelveMonthBaseline.json();
+    const now = new Date();
+    await prisma.transaction.create({
+      data: {
+        userId: idA,
+        type: "EXPENSE",
+        amountPaise: 99_999_999,
+        currency: "INR",
+        categoryId: budgetCatIdA,
+        description: "Out of range fixture",
+        date: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 13, 1))
+      }
+    });
+    for (const months of [1, 3, 6, 12]) {
+      const response = await dashboardGET(req(`/api/dashboard?months=${months}`, tokenA));
+      const body = await response.json();
+      expect(response.status).toBe(200);
+      expect(body.rangeMonths).toBe(months);
+      expect(body.monthly).toHaveLength(months);
+      if (months === 12) {
+        expect(body.income).toBe(baselineData.income);
+        expect(body.expense).toBe(baselineData.expense);
+      }
+    }
+    const invalid = await dashboardGET(req("/api/dashboard?months=2", tokenA));
+    expect(invalid.status).toBe(400);
+  });
+
+  it("adds per-user sample history idempotently without replacing existing records", async () => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const beforeTransaction = await prisma.transaction.findUnique({ where: { id: txIdA } });
+    const existingBudget = await prisma.budget.findFirst({ where: { userId: idA, categoryId: budgetCatIdA, month: currentMonth } });
+    const beforeInvestment = await prisma.investment.findUnique({ where: { id: invIdA } });
+    const beforeGoal = await prisma.goal.findUnique({ where: { id: goalIdA } });
+    const beforeSip = await prisma.sip.findUnique({ where: { id: sipIdA } });
+    const body = JSON.stringify({ months: 3 });
+    const first = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body }));
+    const second = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body }));
+    const samples = await prisma.transaction.count({ where: { userId: idA, id: { startsWith: `sample_${idA}_` } } });
+    const otherUserSamples = await prisma.transaction.count({ where: { userId: idB, id: { startsWith: `sample_${idB}_` } } });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(await first.json()).toEqual({ ok: true, months: 3 });
+    expect(samples).toBe(15);
+    expect(otherUserSamples).toBe(0);
+    expect(await prisma.transaction.findUnique({ where: { id: txIdA } })).toEqual(beforeTransaction);
+    expect(await prisma.budget.findFirst({ where: { userId: idA, categoryId: budgetCatIdA, month: currentMonth } })).toEqual(existingBudget);
+    expect(await prisma.investment.findUnique({ where: { id: invIdA } })).toEqual(beforeInvestment);
+    expect(await prisma.goal.findUnique({ where: { id: goalIdA } })).toEqual(beforeGoal);
+    expect(await prisma.sip.findUnique({ where: { id: sipIdA } })).toEqual(beforeSip);
+    expect(await prisma.investment.count({ where: { userId: idA, id: { startsWith: `sample_${idA}_` } } })).toBe(3);
+    expect(await prisma.sip.count({ where: { userId: idA, id: `sample_${idA}_sip` } })).toBe(1);
+  });
+
+  it("requires authentication and strict period input; opt-in sample insertion also works in production", async () => {
+    const unauthenticated = await sampleDataPOST(req("/api/demo/sample-data", undefined, { method: "POST", body: JSON.stringify({ months: 1 }) }));
+    const unexpectedField = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body: JSON.stringify({ months: 1, userId: idB }) }));
+    expect(unauthenticated.status).toBe(401);
+    expect(unexpectedField.status).toBe(400);
+
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      const confirmed = await sampleDataPOST(req("/api/demo/sample-data", tokenA, { method: "POST", body: JSON.stringify({ months: 1 }) }));
+      expect(confirmed.status).toBe(200);
+    } finally {
+      vi.unstubAllEnvs();
     }
   });
 });
