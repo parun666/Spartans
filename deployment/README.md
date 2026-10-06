@@ -16,13 +16,7 @@ FinTrack uses SQLite for local development and a PostgreSQL schema for Vercel. V
    | `AI_KEY_SECRET` | Different unique random value, at least 32 characters |
 
    Never commit these values or paste them into source files. `TRUST_PROXY` is optional and defaults to disabled.
-4. Apply the PostgreSQL migrations once, from a trusted local terminal with `DATABASE_URL` and `DIRECT_URL` set to the Neon values:
-
-   ```bash
-   npm run vercel:migrate
-   ```
-
-5. Deploy from Vercel's Git integration or run `vercel deploy --prod` after linking the repository with the Vercel CLI.
+4. Deploy from Vercel's Git integration or run `vercel deploy --prod` after linking the repository with the Vercel CLI. The Vercel build command generates the PostgreSQL Prisma client, applies pending PostgreSQL migrations, and then builds Next.js.
 
 ## Local verification
 
@@ -31,7 +25,7 @@ npm ci
 npm run build:vercel
 ```
 
-The regular `npm run build`, local development server, and tests continue to use the SQLite schema. `npm run build:vercel` generates the Prisma client for PostgreSQL before compiling Next.js.
+The regular `npm run build`, local development server, and tests continue to use the SQLite schema. `npm run build:vercel` uses the generated PostgreSQL schema, applies migrations with `DIRECT_URL`, and then compiles Next.js.
 
 ## Data and deployment notes
 
