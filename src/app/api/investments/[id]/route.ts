@@ -4,25 +4,27 @@ import { investmentSchema } from "@/lib/validate";
 import { json, errorResponse, parseBody } from "@/lib/api";
 import { parseAmountToPaise } from "@/lib/money";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const user = await requireUser(req);
     const data = await parseBody(req, investmentSchema);
     const investedPaise = parseAmountToPaise(data.invested);
     const currentPaise = parseAmountToPaise(data.current);
     if (investedPaise === null || currentPaise === null || investedPaise < 0 || currentPaise < 0) return json({ error: "Invalid amounts" }, { status: 400 });
-    const res = await prisma.investment.updateMany({ where: { id: params.id, userId: user.id }, data: { name: data.name, type: data.type, investedPaise, currentPaise, currency: data.currency } });
+    const res = await prisma.investment.updateMany({ where: { id, userId: user.id }, data: { name: data.name, type: data.type, investedPaise, currentPaise, currency: data.currency } });
     if (res.count === 0) throw new ApiError(404, "Not found");
-    await audit(user.id, "INVESTMENT_UPDATED", req, { id: params.id });
+    await audit(user.id, "INVESTMENT_UPDATED", req, { id });
     return json({ ok: true });
   } catch (e) { return errorResponse(e); }
 }
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const user = await requireUser(req);
-    const res = await prisma.investment.deleteMany({ where: { id: params.id, userId: user.id } });
+    const res = await prisma.investment.deleteMany({ where: { id, userId: user.id } });
     if (res.count === 0) throw new ApiError(404, "Not found");
-    await audit(user.id, "INVESTMENT_DELETED", req, { id: params.id });
+    await audit(user.id, "INVESTMENT_DELETED", req, { id });
     return json({ ok: true });
   } catch (e) { return errorResponse(e); }
 }

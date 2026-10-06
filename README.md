@@ -41,6 +41,8 @@ Set these variables for the Vercel **Production** environment (and separately co
 
 Generate the two application secrets independently; never commit them or send them in chat. Vercel environment-variable changes apply only to new deployments, so redeploy after saving them. `npm run build` remains the standard local build (`prisma generate && next build`) and uses the SQLite URL in `.env`. See [deployment/README.md](deployment/README.md) for the detailed setup and database notes.
 
+For **Netlify**, use the Next.js framework/runtime detection, repository root as the base directory, and `npm run build:vercel` as the build command. Leave the publish directory unset so Netlify's Next.js runtime handles server-rendered pages and API routes (do not use static export). Add the same four variables above to the site's Production environment. Secret validation is deferred until authentication or AI-key encryption is used, allowing Next.js to collect route data during compilation without production secrets; the application still fails closed if a required secret is missing at runtime.
+
 Optional fictional seed accounts are created only outside production when `DEMO_USER_PASSWORD` and/or `DEMO_ADMIN_PASSWORD` are supplied in the environment before `npm run setup`. No demo accounts are created by default; never use these variables in production.
 
 ## Quality gates

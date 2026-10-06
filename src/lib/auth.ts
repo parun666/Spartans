@@ -10,7 +10,10 @@ function getRequiredSecret(name: string): Uint8Array {
   if (value.length < 32) throw new Error(`${name} must be at least 32 characters`);
   return new TextEncoder().encode(value);
 }
-const JWT_SECRET = getRequiredSecret("JWT_SECRET");
+let jwtSecret: Uint8Array | undefined;
+function getJwtSecret(): Uint8Array {
+  return (jwtSecret ??= getRequiredSecret("JWT_SECRET"));
+}
 
 export type SessionUser = { id: string; email: string; name: string; role: string; currency: string; timezone: string };
 
@@ -18,14 +21,14 @@ export class ApiError extends Error { constructor(public status: number, message
 
 export async function createSession(userId: string): Promise<string> {
   const session = await prisma.session.create({ data: { userId, token: crypto.randomUUID(), expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000) } });
-  const token = await new SignJWT({ sid: session.token }).setProtectedHeader({ alg: "HS256" }).setSubject(userId).setIssuedAt().setExpirationTime("7d").sign(JWT_SECRET);
+  const token = await new SignJWT({ sid: session.token }).setProtectedHeader({ alg: "HS256" }).setSubject(userId).setIssuedAt().setExpirationTime("7d").sign(getJwtSecret());
   return token;
 }
 
 export async function destroySessionByToken(token: string | undefined) {
   if (!token) return;
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     if (payload.sid) await prisma.session.deleteMany({ where: { token: String(payload.sid) } });
   } catch { /* ignore */ }
 }
@@ -52,7 +55,7 @@ export function getTrustedClientIp(req: Request): string | null {
 export async function getUserByToken(token: string | undefined): Promise<SessionUser | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     const sid = String(payload.sid ?? "");
     const sess = await prisma.session.findUnique({ where: { token: sid }, include: { user: true } });
     if (!sess || sess.expiresAt < new Date() || !sess.user.enabled) return null;

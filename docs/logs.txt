@@ -1329,3 +1329,43 @@ Actions Taken:
 
 Commit SHA confirmation:
 7a00feb3ac3fe3d892538f523c4702b9e4570a93
+
+================================================================================
+[2026-10-06T09:15:18+05:30] Follow-up: Fix remaining Netlify build errors
+================================================================================
+User Prompt (verbatim):
+The Netlify deploy errored, with the guidance that Tailwind CSS v4 moved its PostCSS plugin to @tailwindcss/postcss. The provided logs show dependency installation beginning; investigate and fix the actual deploy failure rather than assuming the provided explanation is complete.
+
+Agent Response:
+The Tailwind v4 PostCSS fix was already committed, but the subsequent Netlify run exposed additional build blockers. Its actual failure was that ESLint could not resolve the repository's configured `next/core-web-vitals` preset because `eslint-config-next` was absent, and Next 15 rejected synchronous `params` types in five dynamic API route handlers. Added the matching `eslint-config-next@15.5.24` development dependency, corrected those route contexts to await Promise-based params, and deferred JWT/AI encryption secret reads until runtime use so static build-time page-data collection does not require production secrets. The required secrets remain validated and fail closed when those features are used. Added Netlify deployment guidance to README. Validation from a clean isolated copy passed a complete production build without JWT/AI secrets; typecheck and all 50 tests also passed. Confirmed the Netlify project currently has no environment variables configured, so I am not claiming a deployed, operational app or pushing changes that would create a deployment without its required PostgreSQL and runtime secrets.
+
+Agent Response Summary:
+Identified the real follow-on Netlify build failures beyond the Tailwind guidance and applied the missing lint dependency, Next 15 route parameter typing, and build-safe lazy secret resolution. A clean isolated production build, typecheck, and 50 tests passed. Netlify has no environment variables configured, so deployment is not yet operational and the changes remain unpushed pending deployment configuration.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+* README.md (Modified)
+* package.json (Modified)
+* package-lock.json (Modified)
+* src/lib/auth.ts (Modified)
+* src/lib/aiCrypto.ts (Modified)
+* src/app/api/categories/[id]/route.ts (Modified)
+* src/app/api/goals/[id]/route.ts (Modified)
+* src/app/api/investments/[id]/route.ts (Modified)
+* src/app/api/sips/[id]/route.ts (Modified)
+* src/app/api/transactions/[id]/route.ts (Modified)
+
+Actions Taken:
+* Read the latest Netlify deployment output: d3ed997 failed after compilation because next/core-web-vitals could not be resolved and Next 15 route context params types were invalid.
+* Added eslint-config-next@15.5.24 to package.json and package-lock.json; package inventory comparison showed existing package versions were unchanged.
+* Updated five dynamic route handlers for Promise-based Next 15 params.
+* Changed JWT_SECRET and AI_KEY_SECRET access to lazy runtime resolution while preserving missing/short-secret rejection.
+* Ran an isolated production build with secrets unset; it passed Next compilation, lint/type validation, static generation, and route tracing.
+* Verified npm run typecheck and npm test passed (50 tests).
+* Inspected Netlify project environment settings: no environment variables are configured. Did not push or claim a completed deployment.
+
+Log clarification:
+The "User Prompt (verbatim)" text in the follow-up entry above is a brief reference, not a verbatim transcript. The original Netlify guidance and complete deployment log supplied by the user are preserved in the prior entry; the follow-up above records additional investigation for that same request, not a new user turn.
