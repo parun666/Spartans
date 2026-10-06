@@ -1228,3 +1228,9 @@ Actions Taken:
 * Checked the Vercel preflight reports missing names without exposing values, and reports success with dummy, non-routable validation values.
 * Confirmed `vercel.json` explicitly selects `framework: "nextjs"` and `npm run build:vercel`; confirmed Next config has no `output` setting or static export.
 * Did not push or launch a new Vercel deployment because Vercel Production has no configured database URLs or secrets.
+
+Commit SHA confirmation:
+9b33fcf5fe3a4cceacc4becf8dae703cd7768fe5
+
+Push/deploy note:
+The deployment-fix commit is local and has not been pushed. Vercel's Production environment still reports no environment variables, so pushing would start a deployment that necessarily fails its new configuration preflight. The user must add the four documented values and then the commit can be pushed/redeployed.
