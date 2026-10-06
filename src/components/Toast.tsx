@@ -1,14 +1,14 @@
 "use client";
 import { createContext, useContext, useState, useCallback } from "react";
 
-type Toast = { id: number; message: string; kind: "success" | "error" };
+type Toast = { id: string; message: string; kind: "success" | "error" };
 const Ctx = createContext<(msg: string, kind?: "success" | "error") => void>(() => {});
 export const useToast = () => useContext(Ctx);
 
 export default function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const push = useCallback((message: string, kind: "success" | "error" = "success") => {
-    const id = Date.now() + Math.random();
+    const id = crypto.randomUUID();
     setToasts((t) => [...t, { id, message, kind }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
   }, []);

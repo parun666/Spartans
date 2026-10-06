@@ -1,0 +1,30 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.75.0"
+  },
+  "ReportID": "01a10e98-4399-7949-aad9-becbfa24b51d",
+  "CreatedAt": "2026-10-06T05:53:42.2336086+05:30",
+  "ArtifactID": "sha256:ef44bcc0b284c045890ebf18e0e5c23db31695d26c9e7678265c19ec9711d8c3",
+  "ArtifactName": ".",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/parun666/Spartans",
+    "Branch": "main",
+    "Commit": "4f166950a0bd2468f1993c6c01c9c370b0674e64",
+    "CommitMsg": "Add security and AI attack regression tests\n\nCo-authored-by: Copilot \u003c223556219+Copilot@users.noreply.github.com\u003e",
+    "Author": "N.Parun Sai Reddy \u003cnvarnidhi@gmail.com\u003e",
+    "Committer": "N.Parun Sai Reddy \u003cnvarnidhi@gmail.com\u003e"
+  },
+  "Results": [
+    {
+      "Target": "Dockerfile",
+      "Class": "config",
+      "Type": "dockerfile",
+      "MisconfSummary": {
+        "Successes": 20,
+        "Failures": 0
+      }
+    }
+  ]
+}

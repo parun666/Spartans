@@ -1,0 +1,33 @@
+rules:
+  - id: fintrack-dangerous-eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Avoid dynamic code evaluation; use explicit parsing and allowlisted operations.
+    pattern: eval(...)
+
+  - id: fintrack-react-raw-html
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Raw HTML rendering can create XSS. Render text or sanitize with an audited allowlist.
+    pattern: dangerouslySetInnerHTML={...}
+
+  - id: fintrack-child-process-shell
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Shell execution from application code is not allowed; use fixed argument arrays if unavoidable.
+    pattern-either:
+      - pattern: exec($COMMAND, ...)
+      - pattern: execSync($COMMAND, ...)
+      - pattern: "spawn($COMMAND, ..., {shell: true, ...})"
+
+  - id: fintrack-math-random-security
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Math.random is not suitable for security-sensitive values; use crypto.randomBytes or crypto.randomUUID.
+    pattern: Math.random(...)
+
+  - id: fintrack-wildcard-cors
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Do not allow all origins for authenticated APIs.
+    pattern: '"Access-Control-Allow-Origin": "*"'

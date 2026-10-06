@@ -1,0 +1,16 @@
+.git
+.github
+.next
+node_modules
+coverage
+test-results
+playwright-report
+security-reports
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+tests
+e2e
+docs
