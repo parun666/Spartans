@@ -1369,3 +1369,6 @@ Actions Taken:
 
 Log clarification:
 The "User Prompt (verbatim)" text in the follow-up entry above is a brief reference, not a verbatim transcript. The original Netlify guidance and complete deployment log supplied by the user are preserved in the prior entry; the follow-up above records additional investigation for that same request, not a new user turn.
+
+Commit SHA confirmation:
+3cd9c3e9be4e101789c40e4db7582f774690ccb1
