@@ -634,6 +634,9 @@ Rebuilt and restarted the local app so its dashboard matches the source, which r
 Commit SHA:
 Pending.
 
+Commit SHA confirmation:
+ef84ad7634eae7420c2cc89b6755bfb78e309b64
+
 Files Modified / Created:
 * docs/logs.txt (Modified)
 * src/app/dashboard/page.tsx (Modified)
@@ -1457,3 +1460,9 @@ Files modified in this turn:
 
 Commit SHA:
 Pending.
+
+Append-only log correction:
+The line `Commit SHA confirmation: ef84ad7634eae7420c2cc89b6755bfb78e309b64` was accidentally inserted in an earlier log entry rather than appended here. It refers to this dashboard-fix turn; the earlier entry is otherwise unchanged. This correction and the confirmation below are authoritative for this turn.
+
+Commit SHA confirmation (dashboard fix):
+ef84ad7634eae7420c2cc89b6755bfb78e309b64
