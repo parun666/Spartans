@@ -1466,3 +1466,24 @@ The line `Commit SHA confirmation: ef84ad7634eae7420c2cc89b6755bfb78e309b64` was
 
 Commit SHA confirmation (dashboard fix):
 ef84ad7634eae7420c2cc89b6755bfb78e309b64
+
+================================================================================
+[2026-10-06T10:32:04+05:30] Confirming Netlify deployment target
+================================================================================
+User Prompt (verbatim):
+Netlify after deploys resume and its variables are corrected
+
+Agent Response:
+Understood. I will keep the dashboard fix on the local branch and hold the push/redeploy until Netlify production deploys resume and its PostgreSQL environment variables are corrected.
+
+Agent Response Summary:
+The user selected Netlify as the target after deployment resumes and configuration is fixed. No deploy was triggered because Netlify currently reports production deploys paused and lacks the correctly named pooled/direct database variables.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* Recorded the user's selected deployment target; did not push or mutate Netlify configuration.
