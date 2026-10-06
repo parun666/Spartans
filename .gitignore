@@ -4,10 +4,12 @@ node_modules/
 .next-e2e/
 out/
 .env
-.env.local
+.env.*
+!.env.example
 *.db
 *.db-journal
 playwright-report/
 test-results/
 .DS_Store
 coverage/
+*.tsbuildinfo

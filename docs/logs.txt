@@ -1166,3 +1166,65 @@ Previously staged files included:
 * e2e/fintrack.spec.ts (Modified)
 * playwright.config.ts (Modified)
 * scripts/security/run.mjs (Modified)
+
+================================================================================
+[2026-10-06T08:45:40+05:30] Fixing Vercel deployment build configuration
+================================================================================
+User Prompt (verbatim):
+Fix this project so it deploys successfully on Vercel.
+
+- Inspect the repository and find the actual reason Vercel stops after `npm install`.
+- Ensure `npm run build` correctly runs `prisma generate && next build`.
+- Fix all TypeScript, Prisma, Next.js, and build errors without disabling checks.
+- Ensure Vercel detects the project as Next.js.
+- Keep `output` empty; do not use static export.
+- Make Prisma/Vercel serverless compatible.
+- Check SQLite usage and prepare PostgreSQL support if SQLite is unsuitable for production.
+- Remove all insecure fallback secrets and use environment variables.
+- Verify all required environment variables.
+- Do not break existing features or UI.
+- Do not use `--force`, `|| true`, or hacks to bypass errors.
+- Fix dependency issues only when necessary; don't blindly upgrade everything.
+- Run `npm run build` locally and fix every error until it succeeds.
+- Verify `npm start` works after the production build.
+- Update `.env.example`, `.gitignore`, and README with the correct deployment instructions.
+Finally, tell me:
+
+1. Root cause
+2. Files changed
+3. Environment variables required
+4. Exact Vercel settings
+5. Whether `npm run build` succeeds
+
+Agent Response:
+Repository inspection found the last observed Vercel deployment failed before compilation because Prisma could not find `DIRECT_URL`. The Production environment currently shows no project environment variables, which also prevents a new deployment from building. The application uses SQLite locally, which is not durable shared storage across Vercel serverless instances, so the production build uses the generated PostgreSQL Prisma schema and Neon migrations. I removed `output: "standalone"` so Next.js uses its normal serverless output, kept `vercel.json` explicitly set to the Next.js framework, and added a Vercel-only preflight for both PostgreSQL URLs and the required independent application secrets. The standard `npm run build` remains exactly `prisma generate && next build`. A clean isolated copy with installed dependencies completed that production build (including Next.js compile, lint/type checks, prerender, and route tracing); `npm start` served `/login` with HTTP 200. Running the same command in the live OneDrive checkout failed when Prisma tried to replace its Windows query-engine DLL (EPERM) while that checkout's existing Node processes were running. I did not terminate them. Removing the tracked stale `tsconfig.tsbuildinfo` cache fixed the separate local `npm run typecheck` missing-generated-route-files error. `npm test` passed 50 tests. No new Vercel deployment can be triggered successfully until the four required variables are saved for this Vercel project's Production environment.
+
+Agent Response Summary:
+Updated the Vercel/Next configuration for standard serverless output, kept the local build command intact, documented the SQLite-local/PostgreSQL-production split, and added a clear Vercel environment preflight. Removed the stale tracked TypeScript build cache. The clean isolated production build and server smoke test passed; the in-place build was blocked by a Windows EPERM file lock, and deployment remains blocked because Vercel Production reports no configured variables.
+
+Commit SHA:
+Pending.
+
+Files Modified / Created:
+* .env.example (Modified)
+* .gitignore (Modified)
+* README.md (Modified)
+* docs/APPROACH.md (Modified)
+* docs/logs.txt (Modified)
+* next.config.js (Modified)
+* package.json (Modified)
+* scripts/verify-vercel-env.mjs (Created)
+* tsconfig.tsbuildinfo (Deleted)
+
+Actions Taken:
+* Read the repository contract, deployment guide, recent deployment logs, environment example, Prisma schemas/migrations, package scripts, Next config, TypeScript config, seed, secret consumers, and Vercel Production settings.
+* Verified the last deployment error and confirmed Production currently displays “No Environment Variables Added.”
+* Ran `npm run build` in the active checkout; Prisma generation failed with EPERM renaming the Windows query-engine DLL while the app's existing Node processes were active.
+* Created a clean isolated copy excluding runtime/build artifacts and `.env`, installed the lockfile dependencies with `npm ci`, and ran the exact `npm run build` using local-only test secrets and SQLite: passed.
+* Ran `npm start -- --hostname 127.0.0.1 --port 3100` against that build and verified `/login` returned HTTP 200.
+* Ran `npm run typecheck`; removed the tracked stale `tsconfig.tsbuildinfo` cache and reran successfully.
+* Ran `npm test`: 50 tests passed.
+* Validated both local SQLite and generated PostgreSQL Prisma schemas and generated the PostgreSQL Prisma client with dummy local values; did not connect to or migrate a real database.
+* Checked the Vercel preflight reports missing names without exposing values, and reports success with dummy, non-routable validation values.
+* Confirmed `vercel.json` explicitly selects `framework: "nextjs"` and `npm run build:vercel`; confirmed Next config has no `output` setting or static export.
+* Did not push or launch a new Vercel deployment because Vercel Production has no configured database URLs or secrets.

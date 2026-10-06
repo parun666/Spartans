@@ -26,16 +26,16 @@ FinTrack helps users track income, expenses, budgets, savings goals, and local b
 ## 2. Technical Architecture & Secure System Design
 
 ### 2.1 High-Level Architecture Overview
-The current version is a static multi-page client-side application in `src/`. `index.html` is the Overview page, while `transactions.html`, `budgets.html`, and `goals.html` provide dedicated pages for each major workflow. Shared styling and behavior live in `styles.css` and `app.js`, and persistence uses `localStorage` under a namespaced key.
+FinTrack is a Next.js App Router application. Server-side API routes authenticate requests and enforce ownership before accessing finance records with Prisma. Local development and tests use SQLite; Vercel production uses Neon PostgreSQL because serverless function instances do not provide a durable shared SQLite file.
 
 ### 2.2 Data Flow & Component Interaction
-User input flows through page-specific form controls into validation logic in `app.js`, then into an in-memory state object and browser `localStorage`. Imported JSON is parsed and shape-checked before replacing local state. Exported data is generated as a user-downloaded JSON file and remains available from each primary page.
+Browser requests flow through Next.js route handlers, which validate input and scope Prisma operations to the authenticated user. Vercel builds generate the PostgreSQL Prisma client from the canonical model schema and apply versioned PostgreSQL migrations before building the Next.js serverless application. Local migrations and tests continue to use SQLite.
 
 ### 2.3 Technology Stack Rationale
-- **Backend / API Framework:** None yet - chosen to keep the first usable prototype offline and simple.
-- **Frontend / Client:** HTML, CSS, and vanilla JavaScript - chosen because the repo had no existing app stack and a dependency-free static app can run immediately.
-- **Database & Persistence:** Browser `localStorage` - chosen for fast local-first prototyping.
-- **Authentication & Cryptography:** Not implemented yet - future versions should add account authentication only when a backend is introduced.
+- **Backend / API Framework:** Next.js App Router route handlers.
+- **Frontend / Client:** Next.js, React, and TypeScript.
+- **Database & Persistence:** Prisma with SQLite for local development and Neon PostgreSQL for Vercel production.
+- **Authentication & Cryptography:** Server-side sessions, JWT cookies, bcrypt password hashing, and AES-256-GCM encryption for saved AI provider keys.
 
 ### 2.4 Defense-in-Depth Security Controls
 1. **Authentication & Session Security:** Not applicable to the current offline prototype.
@@ -59,14 +59,17 @@ User input flows through page-specific form controls into validation logic in `a
 
 ## 4. Architecture Decision Records (ADRs)
 
-### ADR-001: Static Local-First FinTrack Prototype
+### ADR-001: Next.js and Prisma application
 - **Status:** Accepted
-- **Context:** The team needed a complete FinTrack website quickly after onboarding, and the repository had no existing frontend framework.
-- **Options Considered:**
-  1. Static HTML/CSS/JavaScript.
-  2. Framework app with build tooling.
-- **Decision & Rationale:** Static HTML/CSS/JavaScript was selected for immediate usability, low setup risk, and no dependency installation.
-- **Security & Performance Trade-offs:** Local-only storage reduces server attack surface, but browser storage is not appropriate for highly sensitive production financial data on shared devices.
+- **Context:** FinTrack now provides authenticated server-backed finance workflows; a static local-only application cannot enforce per-user authorization or durable multi-device persistence.
+- **Decision & Rationale:** Use Next.js App Router, TypeScript, Prisma, and server-side sessions to centralize validation and ownership checks in API routes.
+- **Security & Performance Trade-offs:** The server-backed design increases the importance of secrets management, authorization, and database availability; these are enforced at the server boundary and documented in `docs/security/`.
+
+### ADR-002: SQLite locally and PostgreSQL on Vercel
+- **Status:** Accepted
+- **Context:** SQLite is convenient for local development and tests but its database file is not durable shared storage across Vercel serverless instances.
+- **Decision & Rationale:** Keep `prisma/schema.prisma` as the canonical model definition. Vercel prepares a PostgreSQL datasource schema, generates its Prisma client, applies PostgreSQL migrations using `DIRECT_URL`, and connects at runtime with Neon’s pooled `DATABASE_URL`.
+- **Security & Operational Trade-offs:** Production and Preview require separate configured databases and secrets. Local SQLite records are not automatically migrated to Neon; backups or a reviewed migration are required to transfer them.
 
 ---
 

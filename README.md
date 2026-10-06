@@ -8,7 +8,7 @@ A complete, secure, local-first personal finance tracker.
 
 - **Next.js 15.5** App Router + **TypeScript**
 - **Tailwind CSS** + shadcn-style UI components (`src/components/ui`)
-- **Prisma** + **SQLite** (file DB, zero setup; schema is Postgres-compatible — switch the datasource provider to `postgresql` to migrate)
+- **Prisma** + **SQLite** for local development/tests; **PostgreSQL (Neon)** for durable Vercel serverless production storage
 - **Zod** validation on every mutation
 - **Recharts** dashboards & reports
 - **Vitest** unit/API tests + **Playwright** E2E
@@ -25,6 +25,21 @@ cp .env.example .env
 npm run setup    # prisma migrate dev + seed
 npm run dev      # http://localhost:3000
 ```
+
+## Deploy to Vercel
+
+Vercel runs Next.js as serverless functions. Do not use the local SQLite database in production: its file is not durable or shared across function instances. Create a Neon PostgreSQL database and import this repository into Vercel. The checked-in `vercel.json` identifies the project as Next.js and runs `npm run build:vercel`; this generates the PostgreSQL Prisma client, applies checked-in migrations through `DIRECT_URL`, and runs `next build`. The app uses Next.js's normal serverless output (no static export and no standalone output mode).
+
+Set these variables for the Vercel **Production** environment (and separately configure Preview only with a separate non-production database):
+
+| Variable | Production value |
+|---|---|
+| `DATABASE_URL` | Neon pooled PostgreSQL connection URL |
+| `DIRECT_URL` | Direct/unpooled connection URL for the same Neon database |
+| `JWT_SECRET` | Unique random secret, at least 32 characters |
+| `AI_KEY_SECRET` | A different unique random secret, at least 32 characters |
+
+Generate the two application secrets independently; never commit them or send them in chat. Vercel environment-variable changes apply only to new deployments, so redeploy after saving them. `npm run build` remains the standard local build (`prisma generate && next build`) and uses the SQLite URL in `.env`. See [deployment/README.md](deployment/README.md) for the detailed setup and database notes.
 
 Optional fictional seed accounts are created only outside production when `DEMO_USER_PASSWORD` and/or `DEMO_ADMIN_PASSWORD` are supplied in the environment before `npm run setup`. No demo accounts are created by default; never use these variables in production.
 
@@ -98,7 +113,7 @@ Only minimized aggregates and category/budget/investment/goal summaries from the
 
 ## Known limitations
 
-- SQLite is single-node; switch datasource to `postgresql` for production scale.
+- Vercel production data is stored in the configured Neon PostgreSQL database; local SQLite data is not copied automatically.
 - In-memory login rate limiter resets on server restart (single instance).
 - Recharts 2.x deprecation warning; upgrade to v3 after migration review.
 - AI provider is OpenAI-compatible only; fails closed to a rule-based summary.

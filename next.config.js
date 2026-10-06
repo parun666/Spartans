@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   ...(process.env.FINTRACK_E2E === "1" ? { distDir: ".next-e2e" } : {}),
-  output: "standalone",
   async headers() {
     const isDevelopment = process.env.NODE_ENV === "development";
     const responseHeaders = [
