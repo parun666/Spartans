@@ -1062,3 +1062,28 @@ Actions Taken:
 * Ran `npm run build`; Prisma generation failed with EPERM renaming its Windows engine DLL while Node processes were active.
 * Ran `npx next build`; production compilation completed successfully using the existing Prisma client.
 * Did not deploy or change the database provider because the production storage decision and Vercel project access are unresolved.
+
+================================================================================
+[2026-10-06T07:35:33+05:30] Diagnosing failed Vercel deployment
+================================================================================
+User Prompt (verbatim):
+I’ve signed in
+
+Agent Response:
+Inspected the actual Vercel deployment triggered by the pushed `main` branch. It failed before Prisma generation because Prisma returned P1012: `Environment variable not found: DIRECT_URL.` The Production environment must include `DIRECT_URL` with the Neon direct/unpooled PostgreSQL connection string; keep the pooled string in `DATABASE_URL`. Add the variables to the deployment's Production environment (and Preview only when appropriate), then redeploy the latest commit from Vercel. Do not send connection strings or secrets in chat. The deployment has not succeeded yet.
+
+Agent Response Summary:
+Verified the Vercel project is connected to `parun666/Spartans` and inspected the actual build output. The failing build is caused by missing `DIRECT_URL`, not an application compile failure. Deployment commits are pushed, but a successful Vercel deployment awaits the missing environment variable and a redeploy.
+
+Commit SHA:
+Pending log-only commit.
+
+Files Modified / Created:
+* docs/logs.txt (Modified)
+
+Actions Taken:
+* User confirmed they were signed into Vercel.
+* Inspected the latest deployment for project `spartans-mr9b` and its build logs.
+* Confirmed deployment build failed with Prisma error P1012: missing `DIRECT_URL`.
+* Did not add, reveal, or change any secret environment variable.
+* Did not redeploy because the required Neon direct connection string is unavailable in the workspace.
