@@ -1521,3 +1521,6 @@ Actions Taken:
 * Cleared `.next` and reran `npx next build`.
 * Added deployed-browser demo fallbacks in `src/lib/client.ts`.
 * Ran `npm run typecheck`, `npm run lint`, `npm test`, and `npx next build`.
+
+Append-only commit confirmation:
+Netlify loading fix committed and pushed to origin/main as 8d96546f0b14e9958d70f67752ec095b78c334fa.
